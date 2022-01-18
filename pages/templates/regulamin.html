@@ -1,0 +1,15 @@
+{% extends '_base.html' %}
+
+{% block title %}
+regulamin
+{% endblock title %}
+
+{% block links %}
+            <a class="font-weight-bold" href="{% url 'books_account_signup' %}" id="signup_modal" data-toggle="modal" data-target="#signupmodal">Rejestracja</a> |
+            <a id="logowanie" class="font-weight-bold " href="{% url 'books_account_login' %}" id="login_modal" data-toggle="modal" data-target="#loginmodal">Logowanie</a>
+{% endblock links %}
+
+
+{% block content %}
+    <h1>Blablabla</h1>
+{% endblock content %}

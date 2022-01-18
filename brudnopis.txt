@@ -1,0 +1,16 @@
+    def get_object(self):
+        indicator = self.kwargs.get("link")
+        queryset = list(Book.objects.raw('''SELECT b.*, ARRAY_AGG(DISTINCT  a.name) AS authors, ARRAY_AGG(DISTINCT  c.name) AS categories
+                                       FROM pages_book AS b INNER JOIN pages_book_category AS bc ON b.id = bc.book_id
+                                                            INNER JOIN pages_category AS c ON c.id = bc.category_id
+                                                            INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
+                                                            INNER JOIN pages_author AS a ON a.id = ba.author_id
+                                       WHERE b.link = %s
+                                       GROUP BY b.id
+                                    ''', [indicator]))
+        if len(queryset) > 1:
+            raise MultipleObjectsReturned
+        elif len(queryset) == 0:
+            raise ObjectDoesNotExist
+        return queryset[0]
+

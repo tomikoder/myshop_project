@@ -1,0 +1,32 @@
+    <form method="POST" id="loginform" enctype="multipart/form-data">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Logowanie</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="text-danger"><small id="err_nonfield"></small></p>
+                    <div class="form-group">
+                        <label for="{{ login_form.login_field.id_for_label }}">Twój email:</label>
+                        <p class="text-danger"><small id="err_login"></small></p>
+                        {{ login_form.login }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ login_form.password.id_for_label }}">Hasło</label>
+                        <p class="text-danger"><small id="err_password"></small></p>
+                        {{ login_form.password }}
+                    </div>
+                <div class="form-check">
+                    {{ login_form.remember }}
+                    <label class="form-check-label" for="{{ remember.regulamin.id_for_label }}">Pamiętaj mnie</a></label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" id="contactSubmit" class="btn btn-success">Wyślij</button>
+            </div>
+        </div>
+        </div>
+    </form>

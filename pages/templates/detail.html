@@ -1,0 +1,342 @@
+{% extends '_base.html' %}
+
+{% load static %}
+{% load tag_library %}
+
+{% block title %} {{ product.title }} {% endblock title %}
+{% block additional_css %}<link rel="stylesheet" href="{% static 'css/pagesstyle.css' %}">{% endblock additional_css %}
+
+{% block content %}
+    {% return_data user product book_reviews your_rate is_reviewed user_additional_data you_liked num_of_reviews other_books as data %}
+    {{ data|json_script:"data_id" }}
+    <img class="m-5 float-left" src="{{ product.book_page_img }}" id="book_img">
+    <ul class="list-group mr-4 mt-5" style="font-size: 15px;width: 40%;">
+        <li class="list-group-item">Tytuł: {{ product.title }}</li>
+        {{ product.list_of_authors | safe }}
+        {{ product.list_of_genres | safe }}
+        <li class="list-group-item">Liczba stron: {{ product.pages }}</li>
+        <li class="list-group-item">Wydawca: {{ product.publisher }}</li>
+        <li class="list-group-item">Data wydania: {{ product.publication_date }}</li>
+        <li class="list-group-item" id="rate">Ocena:
+            {% if product.rate == 0 %}
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            {% elif product.rate == 1 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            {% elif product.rate == 2 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            {% elif product.rate == 3 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            {% elif product.rate == 4 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            {% elif product.rate == 5 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            {% endif %}
+            <span class="font-weight-bold" id="number_of_votes">({{ num_of_votes }})</span>
+        </li>
+        {% if your_rate %}
+        <li class="list-group-item" id="vote">Twoja ocena:
+            {% if your_rate.rate == 1 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            {% elif your_rate.rate == 2 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            {% elif your_rate.rate == 3 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            {% elif your_rate.rate == 4 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            {% elif your_rate.rate == 5 %}
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            {% endif %}
+            <a href="" id="change">zmień</a>
+            <span class="text-danger" style="display: none;" id="err">Błąd przetwarzania danych.</span>
+        </li>
+        {% else %}
+            {% if user.is_authenticated %}
+                <li class="list-group-item" id="vote">Twoja ocena:
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="text-danger" style="display: none;" id="err">Błąd przetwarzania danych.</span>
+                    <a href="" id="change" style="display: none;">zmień</a>&nbsp;
+                </li>
+            {% else %}
+                <li class="list-group-item" id="" style=>Twoja ocena:
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="text-danger" style="display: none;" id="err">Błąd przetwarzania danych.</span>
+                    <a href="" id="change" style="display: none;">zmień</a>&nbsp;
+                </li>
+            {% endif %}
+        {% endif %}
+    </ul>
+        <div class="d-flex" style="width: 40%;">
+        {% if user.is_authenticated %}
+        {% if you_liked %}
+        <p>
+        <i class="fas fa-heart text-primary pt-1" style="font-size: 25px;"></i>&nbsp;<a href="" id="like_book" data-toggle="tooltip" title="cofnij"><strong>Lubisz</strong></a><small>&nbsp;{{ product.num_of_likes }} polubiło</small>
+        <i class="fas fa-plus text-primary pt-1" style="font-size: 25px;"></i>&nbsp;<a href="" id="add_to_box"><strong>Dodaj do schowka</strong></a>
+        </p>
+        {% else %}
+        <p>
+        <i class="far fa-heart ml-2 text-primary pt-1" style="font-size: 25px;"></i><a href="" id="like_book" data-toggle="tooltip" title="cofnij"><strong>Polub</strong></a><small>&nbsp;&nbsp;{{ product.num_of_likes }} polubiło</small>
+        <i class="fas fa-plus ml-2 text-primary pt-1" style="font-size: 25px;"></i><a href="" id="add_to_box"><strong>Dodaj do schowka</strong></a>
+        </p>
+        {% endif %}
+        {% else %}
+        <p>
+        <i class="far fa-heart ml-2 text-primary pt-1" style="font-size: 25px;"></i><small>&nbsp;{{ product.num_of_likes }} polubiło</small>
+        </p>
+        {% endif %}
+        </div>
+        <div class="d-flex flex-column ml-auto justify-content-center" style="height: max; width: 15%;">
+            <a href="" id="buy">
+                <div class="" style="width: 75%;">
+                    <i class="fas fa-cart-arrow-down text-primary pl-3" style="font-size: 50px;"></i>
+                    <button type="button" class="buy main d-block pr-2 btn-primary mb-1" style="width: 100%;">Kup</button>
+                </div>
+            </a>
+            <span class="font-weight-bold text-muted pl-4" style="font-size: 15px;">cena:</span>
+            {% if product.is_in_promotion %}
+            <span class="pl-4" style="font-size: 14px;">
+                {{ product.promotional_price }} zł<br>
+            </span>
+            <span class="pl-4" style="font-size: 14px;"><del>{{ product.price }} zł</del></span>
+            <small>Oszczędzasz {{ product.calculate_percentage }} %</small>
+            {% else %}
+            <span class="pl-4" style="font-size: 14px;">{{ product.price }} zł</span><br>
+            {% endif %}
+        </div>
+    <h3>Może też zainteresuje Cię to</h3>
+    <div class="d-flex flex-row" id="other_books" style="width: 100%;">
+        <div class="d-flex align-items-center pr-1"><a id="pl" href=""><i class="fas fa-chevron-left text-body"></i></a></div>
+        {% for b in other_books|slice:":5" %}
+        <div class="other_book pt-5" style="height: 150;width: 100%">
+            <div class="d-flex justify-content-center pr-1" style="height: 200px;"><a class="other_book_link" href="/{{ b.product_type }}/{{ b.link }}"><img class="other_book_img" src="{{ b.menu_img }}"></a></div>
+            <p class="text-muted pl-3" style="font-family: sans-serif Helvetica; font-size: 14px; width: 90%;">
+                <span class="other_book_author" style="font-size: 13px;">{% display_authors b.authors %},</span><br>
+                <a class="other_book_link other_book_title" href="/{{ b.product_type }}/{{ b.link }}">{{ b.title }}</a><br>
+                {% if not b.title|length > 24 %}
+                <br class="add_new_line">
+                {% else %}
+                <br class="add_new_line" style="display: none;">
+                {% endif %}
+                {% if b.promotional_price %}
+                <del><strong class="price_one">{{ b.price }} zł &nbsp;&nbsp;</strong></del>
+                <strong class="price_two">{{ b.promotional_price }} zł</strong><br>
+                {% else %}
+                <del><strong class="price_one" style="display: hide;"></strong></del>
+                <strong class="price_two">{{ b.price }} zł</strong><br>
+                {% endif %}
+                    {% if b.rate == 0 %}
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    {% elif b.rate == 1 %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    {% elif b.rate == 2 %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    {% elif b.rate == 3 %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    {% elif b.rate == 4 %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    {% elif b.rate == 5 %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    {% endif %}
+            </p>
+            <button type="button" class="buy btn btn-success ml-3" index="{{ b.index }}">Kup</button>
+        </div>
+        {% endfor %}
+        <div class="d-flex align-items-center"><a id="pr" href=""><i class="fas fa-chevron-right text-body"></i></a></div>
+    </div>
+    <br>
+    <br>
+    <h3>Opis produktu <a href="" class="text-body" id="content_to_display1"><i class="fas fa-chevron-down"></i></a></h3>
+    <p>{{ product.description }}</p>
+    <br>
+    <br>
+    <h3>Szczegóły <a href="" class="text-body" id="content_to_display2"><i class="fas fa-chevron-up"></i></a></h3>
+        <ul class="list-group" style="width: 40%; display: None;">
+            <li class="list-group-item">Typ okładki:  {{ product.cover_type }}</li>
+            <li class="list-group-item">Język: {{ product.language }}</li>
+            <li class="list-group-item">ISBN: {{ product.isbn }}</li>
+            <li class="list-group-item">Rozmiar: {{ product.size }}</li>
+        </ul>
+    <br>
+    <br>
+    <h3>Statystyki <a href="" class="text-body" id="content_to_display3"><i class="fas fa-chevron-down"></i></a></h3>
+    <ul class="list-group" style="width: 40%; display: None;">
+        <li class="list-group-item">
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+        </li>
+        <li class="list-group-item">
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+        </li>
+        <li class="list-group-item">
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+            <span class="fa fa-star"></span>
+        </li>
+        <li class="list-group-item">
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star"></span>
+        </li>
+        <li class="list-group-item">
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+            <span class="fa fa-star checked"></span>
+        </li>
+    </ul>
+    <br>
+    <br>
+    <h2>Recenzje <span id="rev_num">{{ num_of_reviews }}</span><a href="" class="text-body" id="content_to_display4"><i class="fas fa-chevron-down"></i></a></h2><br>
+    {% if user.is_authenticated %}
+        {% if is_reviewed %}
+        <h5 id="post" class="text-primary">Już dodałeś/aś recenzję !</h5>
+        {% else %}
+        <h5 id="post" class="text-primary"><a href="">Napisz recenzję</a></h5>
+        {% endif %}
+    {% endif %}
+    <br>
+    <form class="" id="comment_form" method="POST" style="display: none;">
+        <div class="d-flex"><a class="ml-auto" id="hide_form" href=""><i class="fas fa-times" style="font-size: 30px;"></i></a></div>
+        <div class="form-group">
+            <label for="subject">Temat <span id="err_subject"></span></label>
+            {{ comment_form.subject }}
+        </div>
+        <div>
+            <label for="content">Twója recenzja</label>
+            {{ comment_form.content }}
+        </div>
+        <button type="submit" id="submit_comment" class="btn btn-success mt-3">Wyślij</button>
+    </form>
+    <div id="reviews" class="">
+    {% for rev in book_reviews %}
+        <div class="rev">
+            <p><br>
+                <span class="font-weight-bold">Ocenił na: </span>
+                {% if rev.rate == 1 %}
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star "></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                {% elif rev.rate == 2 %}
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                {% elif rev.rate == 3 %}
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star"></span>
+                <span class="fa fa-star"></span>
+                {% elif rev.rate == 4 %}
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star"></span>
+                {% elif rev.rate == 5 %}
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                <span class="fa fa-star checked"></span>
+                {% endif %}
+            </p>
+            {{ rev.output | safe }}
+        </div>
+     {% endfor %}
+     </div>
+
+{% include 'pagesmodals.html' %}
+{% endblock content %}
+
+{% block script %}<script src="{% static 'js/pagesscript.js' %}"></script>{% endblock script %}

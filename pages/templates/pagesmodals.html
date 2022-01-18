@@ -1,0 +1,56 @@
+<div id="modal_image" class="modalimg">
+  <img src="/media/{{ product.cover_img }}" class="modal-content" id="img01">
+  <div id="caption"></div>
+</div>
+
+<div class="modal" id="updateshopingcard">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Twój koszyk</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <p>Produkt już się znajduje w twoim koszyku</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Zamknij</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+var modal = document.getElementById("modal_image");
+
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var img = document.getElementById("book_img");
+var modalImg = document.getElementById("img01");
+var captionText = document.getElementById("caption");
+var menu = document.getElementById("menu");
+img.onclick = function(){
+  menu.className = "text-primary pl-1"
+  modal.style.display = "block";
+  captionText.innerHTML = this.alt;
+}
+modal.onclick = function(){
+  modal.style.display = "None";
+  menu.className = "text-primary sticky-top pl-1";
+}
+
+
+var span = document.getElementsByClassName("close")[0];
+
+span.onclick = function() {
+  modal.style.display = "none";
+}
+</script>
+

@@ -1,0 +1,2 @@
+Book.objects.filter(pk=9).values(authors=Subquery(Author.objects.filter(book=OuterRef('pk')).values('name')))
+Book.objects.filter(pk=9).values(authors=ArrayAgg('author__name')).get()
