@@ -6,6 +6,7 @@ import uuid
 import decimal
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import admin
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
@@ -46,11 +47,12 @@ class Book(models.Model):
         editable=False
     )
     title = models.CharField(max_length=100, null=False, default='No title')
+    original_title = models.CharField(max_length=100, null=True)
     author = models.ManyToManyField(Author)
-    original_title = models.CharField(max_length=100, null=False, default='BD')
     description = models.TextField(blank=True, null=False, default='')
     availability = models.BooleanField()
     price = models.DecimalField(max_digits=6, decimal_places=2, default=decimal.Decimal(0000.00))
+    promotional_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=decimal.Decimal(0000.00))
     category = models.ManyToManyField(Category)
     pages = models.IntegerField(null=True)
     cover_type = models.CharField(max_length=20, null=False, default='BD', choices=[
@@ -67,12 +69,12 @@ class Book(models.Model):
                                                          ],)
     isbn = models.BigIntegerField(null=True)
     publication_date = models.DateField(null=True)
+    adding_to_shop_date = models.DateField(null=True, auto_now_add=True)
     cover_img = models.ImageField(default='covers/sample.jpg')
     menu_img = models.CharField(max_length=1000, blank=True, default='')
     book_page_img = models.CharField(max_length=1000, blank=True, default='')
     size = models.CharField(max_length=15, null=True, default='30 x 213 x148')
     product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True,)
-    promotional_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=decimal.Decimal(0000.00))
     number_of_items = models.IntegerField(default=0, null=False,)
     number_of_sold = models.IntegerField(default=0, null=False)
     rate = models.IntegerField(default=0, null=False)

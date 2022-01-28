@@ -8,6 +8,7 @@ class BookReviewsPanel(admin.StackedInline):
 class BooksWithReviews(admin.ModelAdmin):
     date_hierarchy = 'publication_date'
     model = Book
+
     inlines = [
         BookReviewsPanel,
     ]
