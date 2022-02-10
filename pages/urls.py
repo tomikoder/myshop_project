@@ -3,6 +3,12 @@ from .views import (HomePageView, RegulaminPageView, BookDetailPageView, vote_on
                     edit_book_review, add_like_to_book, remove_like_from_book, remove_book_review, add_product_to_shopping_cart,
                     New_Books, Best_Books, Prom_Books, Search_Book
                     )
+from django.http import JsonResponse
+
+def lol(request, **kwargs):
+
+    print(kwargs)
+    return JsonResponse(data={'a': (1, 2)})
 
 urlpatterns = [
     path('', HomePageView.as_view(), name='home'),
@@ -19,5 +25,6 @@ urlpatterns = [
     path('new/book/', New_Books.as_view(), name='new_books'),
     path('best/book', Best_Books.as_view(), name='the_best'),
     path('prom/book/', Prom_Books.as_view(), name='prom'),
-    path('search/', Search_Book.as_view())
+    path('search/', Search_Book.as_view()),
+    path('lol/<str:figura>/<int:dupa>/', lol),
 ]

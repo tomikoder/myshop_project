@@ -410,7 +410,7 @@ $(function() {
                 elem_three.find('.other_book_img').attr("src", elem_two[c]['menu_img']);
                 elem_three.find('.other_book_title').text(elem_two[c]['title']);
                 elem_three.find('.other_book_author').text(elem_two[c]['author']);
-                if (elem_two[c]['promotional_price'] != null) {
+                if (elem_two[c]['promotional_price'] != '0.00') {
                     elem_three.find('.price_one').text(elem_two[c]['price'] + " zł  ").show();
                     elem_three.find('.price_two').text(elem_two[c]['promotional_price'] + " zł");
                 } else {
@@ -452,7 +452,7 @@ $(function() {
                 elem_three.find('.other_book_img').attr("src", elem_two[c]['menu_img']);
                 elem_three.find('.other_book_title').text(elem_two[c]['title']);
                 elem_three.find('.other_book_author').text(elem_two[c]['author']);
-                if (elem_two[c]['promotional_price'] != null) {
+                if (elem_two[c]['promotional_price'] != '0.00') {
                     elem_three.find('.price_one').text(elem_two[c]['price'] + "  zł  ").show();
                     elem_three.find('.price_two').text(elem_two[c]['promotional_price'] + " zł");
                 } else {

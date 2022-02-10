@@ -145,7 +145,7 @@ class BookDetailPageView(DetailView):
                                              SELECT b2.id, b2.title, b2.authors, CAST(b2.price AS VARCHAR), CAST(b2.promotional_price AS VARCHAR), p.name AS product_type, ROW_NUMBER() OVER() -1 AS index, CAST(b2.link AS CHAR(36)), b2.menu_img, b2.rate 
                                              FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                             
                            ''' % (self.object.id, sub_set)))
-            context['other_books'] = dictfetchall(cursor)
+            other_books = dictfetchall(cursor)
             rows_num = cursor.rowcount
             if rows_num != 15:
                 cursor.execute(('''WITH book AS (SELECT b.id, b.title, b.price, b.promotional_price, b.product_id, b.link, ARRAY_AGG(DISTINCT a.name) AS authors, b.menu_img, b.rate 
@@ -161,7 +161,12 @@ class BookDetailPageView(DetailView):
                                                  SELECT b2.id, b2.title, b2.authors, CAST(b2.price AS VARCHAR), CAST(b2.promotional_price AS VARCHAR), p.name AS product_type, ROW_NUMBER() OVER() + %s AS index, CAST(b2.link AS CHAR(36)), b2.menu_img, b2.rate 
                                                  FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                               
                                ''' % (self.object.pk, sub_set, (15 - cursor.rowcount), (rows_num - 1))))
-                context['other_books'] = context['other_books'] + dictfetchall(cursor)
+                other_books += dictfetchall(cursor)
+            c = 15 - len(other_books)
+            while c:
+                other_books.append(None)
+                c -= 1
+        context['other_books'] = other_books
         context['num_of_reviews'] = len(context['book_reviews'])
         if user.is_authenticated:
             context['user_additional_data'] = user.additionaldata
@@ -211,7 +216,7 @@ class New_Books(ListView):
     template_name = 'new.html'
     context_object_name = 'books'
     paginate_by = 12
-    limit = 36
+    limit = 84
     sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG(a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                   FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
@@ -300,7 +305,6 @@ class Search_Book(New_Books):
                  '''
 
     def get_args_to_query(self):
-
         return (self.request.GET['query'] + '%', '%' + self.request.GET['query'] + '%', self.limit)
 
 

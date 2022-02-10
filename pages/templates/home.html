@@ -27,7 +27,7 @@
                         {% if not p.title|length > 24 %}
                         <br>
                         {% endif %}
-                        {% if p.promotional_price %}
+                        {% if p.promotional_price != '0.00' %}
                         <del><strong>{{ p.price }} zł</strong></del>&nbsp;
                         <strong> {{ p.promotional_price }} zł</strong><br>
                         {% else %}
@@ -86,7 +86,7 @@
                         {% if not p.title|length > 24 %}
                         <br>
                         {% endif %}
-                        {% if p.promotional_price %}
+                        {% if p.promotional_price != '0.00' %}
                         <del><strong>{{ p.price }} zł</strong></del>&nbsp;
                         <strong> {{ p.promotional_price }} zł</strong><br>
                         {% else %}
@@ -153,7 +153,7 @@
                         {% if not p.title|length > 24 %}
                         <br>
                         {% endif %}
-                        {% if p.promotional_price %}
+                        {% if p.promotional_price != '0.00' %}
                         <del><strong>{{ p.price }} zł</strong></del>&nbsp;
                         <strong> {{ p.promotional_price }} zł</strong><br>
                         {% else %}
@@ -212,7 +212,7 @@
                         {% if not p.title|length > 24 %}
                         <br>
                         {% endif %}
-                        {% if p.promotional_price %}
+                        {% if p.promotional_price != '0.00' %}
                         <del><strong>{{ p.price }} zł</strong></del>&nbsp;
                         <strong> {{ p.promotional_price }} zł</strong><br>
                         {% else %}
@@ -277,7 +277,7 @@
                         {% if not p.title|length > 24 %}
                         <br>
                         {% endif %}
-                        {% if p.promotional_price %}
+                        {% if p.promotional_price != '0.00' %}
                         <del><strong>{{ p.price }} zł</strong></del>&nbsp;
                         <strong> {{ p.promotional_price }} zł</strong><br>
                         {% else %}
@@ -335,7 +335,7 @@
                         {% if not p.title|length > 24 %}
                         <br>
                         {% endif %}
-                        {% if p.promotional_price %}
+                        {% if p.promotional_price != '0.00' %}
                         <del><strong>{{ p.price }} zł</strong></del>&nbsp;
                         <strong> {{ p.promotional_price }} zł</strong><br>
                         {% else %}

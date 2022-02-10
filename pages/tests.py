@@ -7,7 +7,7 @@ from django.core import serializers
 import json
 
 file = open('test_output', 'w')
-category = Categories.objects.all()[0]
+category = Category.objects.all()[0]
 
 user_credentials = {'username': 'somename', 'email': 'testuser@mail.com', 'first_name': 'Somename', 'last_name': 'Somesurname',
                     'city': 'Somecity', 'address': 'someaddress 00', 'postal_code': 00000,
@@ -20,7 +20,7 @@ class Login_Test(TestCase):
     def setUp(self):
         get_user_model().objects.create_user(**user_credentials)
         self.author = Author.objects.create(name='Some Name')
-        self.category = Categories.objects.create(name='Somecategory')
+        self.category = Category.objects.create(name='Somecategory')
         self.user = get_user_model().objects.get(pk=1)
         self.book = Book.objects.create(**some_book)
         self.book.author.add(self.author)

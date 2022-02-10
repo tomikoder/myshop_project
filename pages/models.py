@@ -7,32 +7,46 @@ import decimal
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import admin
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils.timezone import now
 
 class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
     comment_num = models.IntegerField(default=0, null=False)
     pics_num = models.IntegerField(default=100, null=False)
 
+class Sorted_Items(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().order_by('name')
+
 class Author(models.Model):
+    objects = Sorted_Items()
     name = models.CharField(max_length=200, null=False, blank=False)
     description = models.TextField(blank=True, null=False, default='')
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+        ]
 
     def __str__(self):
         return self.name
 
 class Category(models.Model):
+    objects = Sorted_Items()
     name = models.CharField(max_length=100, null=False, blank=False)
 
     def __str__(self):
         return self.name
 
 class Product(models.Model):
+    objects = Sorted_Items()
     name = models.CharField(max_length=100, null=False, blank=False)
 
     def __str__(self):
         return self.name
 
 class Publisher(models.Model):
+    objects = Sorted_Items()
     name = models.CharField(max_length=200, null=False, blank=False)
     url = models.CharField(max_length=200, null=False, default='', blank=True)
 
@@ -40,6 +54,7 @@ class Publisher(models.Model):
         return self.name
 
 class Book(models.Model):
+    default_product_id = 1
     link = models.UUIDField(
         unique=True,
         primary_key=False,
@@ -47,12 +62,12 @@ class Book(models.Model):
         editable=False
     )
     title = models.CharField(max_length=100, null=False, default='No title')
-    original_title = models.CharField(max_length=100, null=True)
+    original_title = models.CharField(max_length=100, default='n/d')
     author = models.ManyToManyField(Author)
-    description = models.TextField(blank=True, null=False, default='')
+    description = models.TextField(blank=True, null=False, default='Ta książka nie ma jeszcze opisu.')
     availability = models.BooleanField()
     price = models.DecimalField(max_digits=6, decimal_places=2, default=decimal.Decimal(0000.00))
-    promotional_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, default=decimal.Decimal(0000.00))
+    promotional_price = models.DecimalField(max_digits=6, decimal_places=2, default=decimal.Decimal(0000.00))
     category = models.ManyToManyField(Category)
     pages = models.IntegerField(null=True)
     cover_type = models.CharField(max_length=20, null=False, default='BD', choices=[
@@ -67,19 +82,24 @@ class Book(models.Model):
                                                             ('de', 'niemiecki'),
                                                             ('fr', 'francuski'),
                                                          ],)
-    isbn = models.BigIntegerField(null=True)
+    isbn = models.BigIntegerField(default=0)
     publication_date = models.DateField(null=True)
-    adding_to_shop_date = models.DateField(null=True, auto_now_add=True)
+    adding_to_shop_date = models.DateField(default=now)
     cover_img = models.ImageField(default='covers/sample.jpg')
-    menu_img = models.CharField(max_length=1000, blank=True, default='')
     book_page_img = models.CharField(max_length=1000, blank=True, default='')
+    menu_img = models.CharField(max_length=1000, blank=True, default='')
     size = models.CharField(max_length=15, null=True, default='30 x 213 x148')
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True,)
-    number_of_items = models.IntegerField(default=0, null=False,)
-    number_of_sold = models.IntegerField(default=0, null=False)
-    rate = models.IntegerField(default=0, null=False)
-    num_of_likes = models.IntegerField(default=0, null=False)
-    num_of_rates = models.IntegerField(default=0, null=False)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True, default=default_product_id)
+    number_of_items = models.IntegerField(default=0)
+    number_of_sold = models.IntegerField(default=0)
+    rate = models.IntegerField(default=0)
+    num_of_likes = models.IntegerField(default=0)
+    num_of_rates = models.IntegerField(default=0)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['title']),
+        ]
 
     def get_authors_to_query_or(self):
         authors = list(self.author.all())
@@ -94,11 +114,6 @@ class Book(models.Model):
         while genres:
             query = query | Q(category=genres.pop())
         return query
-
-    def serialize(self):
-        return {"model": "pages.book", "pk": self.pk, 'is_long_name': self.is_long_name(), "fields": {"link": str(self.link), "title": self.display_title(), "price": str(self.price), "menu_img": self.menu_img,
-                "promotional_price": str(self.promotional_price), 'index': self.index,
-                "rate": self.rate, "author": self.display_authors()}}
 
     def is_long_name(self):
         if len(self.title) > 24:
@@ -127,7 +142,7 @@ class Book(models.Model):
             return False
 
     def is_in_promotion(self):
-        if self.promotional_price is not None:
+        if self.promotional_price:
             self.percentage = self.calculate_percentage()
             return True
         else:

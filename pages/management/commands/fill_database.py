@@ -10,15 +10,17 @@ from pages.signals import content_file_name, size_lg, size_md, size_sm
 from datetime import datetime
 from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
-
+from pages.signals import content_file_name, size_lg, size_md, size_sm
+from PIL import Image
+from django.conf import settings
 
 class Command(BaseCommand):
     help = 'Add books to database'
 
     def add_arguments(self, parser):
         parser.add_argument('amount', type=int)
-        parser.add_argument('start_year', type=int)
-        parser.add_argument('stop_year', type=int)
+        parser.add_argument('--sy', default=2021, type=int, help='Start year')     #start year
+        parser.add_argument('--ey', default=2023, type=int, help='End year')       #end_year
 
     def update_register(self, year, month, page, number, counter, stop=False):
         file = open('fill_database_log.txt', 'a')
@@ -32,16 +34,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         page= 1
         month = 1
-        if not 'start_year' in options:
-            year = 2021
-        else:
-            year = options['start_year']
-        if not 'stop_year'   in options:
-            end_year = 2023
-        else:
-            end_year = options['stop_year']
-        year = 2019
-        end_year = 2020
+        year = options['sy']
+        end_year = options['ey']
         number = options['amount']
         counter = 0
         authors = list(Author.objects.all())
@@ -76,7 +70,7 @@ class Command(BaseCommand):
                 if (i % 10 == 0): # Co dziesiąta książka będzie w promocji
                     b_promotional_price = b_price - round(float(0.25) * b_price)
                 else:
-                    b_promotional_price = None
+                    b_promotional_price = float(0)
 
                 b_detail = html_2.find("div", id='book-details').find("dl")
                 b_isbn = b_detail.find("dt", string=re.compile('ISBN:'))
@@ -92,6 +86,8 @@ class Command(BaseCommand):
                 b_original_title = html_2.find("dt", string=re.compile('Tytuł oryginału:'))
                 if b_original_title:
                     b_original_title = b_original_title.find_next_sibling("dd").text.strip()
+                else:
+                    b_original_title = 'n/d'
                 b_categories = b_detail.find("dt", string=re.compile('Kategoria:')).find_next_sibling("dd").text.strip().split(',')
                 b_authors = html_2.find("a", class_='link-name').text.strip().split(',')
 
@@ -114,7 +110,6 @@ class Command(BaseCommand):
 
                 books_in_db.add(b_isbn)
 
-
                 for p in publishers:
                     if p.name == b_publisher:
                         b_publisher = p
@@ -132,9 +127,20 @@ class Command(BaseCommand):
 
                 pic_link = html_2.find("a", id="js-lightboxCover")["href"]
                 pic = requests.get(pic_link)
-                open(os.path.join('C:\\Users\\Tomek\\PycharmProjects\\MyFirstProject\\myshoop\\media', os.path.split(pic_link)[-1]), 'wb').write(pic.content)
-                new_book.cover_img.name = os.path.split(pic_link)[-1]
-                new_book.is_created = True
+                new_file_name, ext = content_file_name(os.path.split(pic_link)[-1])
+                open(os.path.join(settings.MEDIA_ROOT, 'covers', new_file_name), 'wb').write(pic.content)
+                file = Image.open(os.path.join(settings.MEDIA_ROOT, 'covers', new_file_name))
+                if file.size > size_lg:
+                    file.thumbnail(size_lg, Image.ANTIALIAS)
+                new_book.cover_img.name = 'covers//' + new_file_name
+                file.thumbnail(size_md, Image.ANTIALIAS)
+                new_file_name = os.path.split(new_book.cover_img.name)[-1][:-6] + ('md.%s' % ext)
+                file.save(os.path.join(settings.MEDIA_ROOT, 'covers', 'md', new_file_name))
+                new_book.book_page_img = '/media/covers/md/' + new_file_name
+                file.thumbnail(size_sm, Image.ANTIALIAS)
+                new_file_name = os.path.split(new_book.cover_img.name)[-1][:-6] + ('sm.%s' % ext)
+                file.save(os.path.join(settings.MEDIA_ROOT, 'covers', 'sm', new_file_name))
+                new_book.menu_img = '/media/covers/sm/' + new_file_name
                 new_book.save()
 
                 for b_a in b_authors:
@@ -163,7 +169,7 @@ class Command(BaseCommand):
                     self.update_register(year, month, page, number, counter)
                     return
 
-            last_page = html_2.find("li", class_="page-item next-page disabled")
+            last_page = html_1.find("li", class_="page-item next-page disabled")
 
             if last_page == None:
                 page = 1
@@ -177,4 +183,5 @@ class Command(BaseCommand):
                     month += 1
             else:
                 page += 1
+
 

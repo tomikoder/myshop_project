@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     # local apps
     'users.apps.UsersConfig',
     'pages.apps.PagesConfig',
+    'newapp.apps.NewappConfig',
 ]
 
 MIDDLEWARE = [
