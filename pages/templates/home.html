@@ -7,7 +7,7 @@
 {% block title %} Home Page {% endblock title %}
 
 {% block content %}
-            {% return_data_two user user_additional_data new best as data %}
+            {% return_data_two user user_additional_data new best prom as data %}
             {{ data|json_script:"data_id" }}
 
             <div class="row">

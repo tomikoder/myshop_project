@@ -30,7 +30,7 @@ def return_key_val(d, k):
 @register.simple_tag
 def return_data(user, book, book_reviews, your_rate, is_reviewed, user_additional_data, you_liked, num_of_reviews, other_books):
     if user.is_authenticated:
-        data_to_back = {'user_id': user.id, 'book': serializers.serialize('json', [book], fields=('pk', 'link', 'title', 'author', 'price', 'promotional_price', 'menu_img')), 'book_reviews': serializers.serialize('json', book_reviews), 'is_reviewed': is_reviewed,
+        data_to_back = {'user_id': user.id, 'book': json.dumps(book.serialize()), 'book_reviews': serializers.serialize('json', book_reviews), 'is_reviewed': is_reviewed,
                         'user_additional_data': serializers.serialize('json', [user_additional_data]), 'you_liked': you_liked,
                         'num_of_reviews': num_of_reviews, 'other_books': json.dumps(other_books)
                         }
@@ -38,17 +38,29 @@ def return_data(user, book, book_reviews, your_rate, is_reviewed, user_additiona
             data_to_back['your_rate'] = serializers.serialize('json', [your_rate])
         return data_to_back
     else:
-        return {'you_liked': 0, 'book': serializers.serialize('json', [book], fields=('pk', 'link', 'title', 'author', 'price', 'promotional_price', 'menu_img')),
+        return {'you_liked': 0, 'book': json.dumps(book.serialize()),
                 'other_books': json.dumps(other_books)
                 }
 
 @register.simple_tag
-def return_data_two(user, user_additional_data, new, best):
+def return_data_two(user, user_additional_data, new, best, prom):
     if user.is_authenticated:
         return {'user_id': user.id, 'user_additional_data': serializers.serialize("json", [user_additional_data]),
                 'other_books': json.dumps(new + best)}
     else:
-        return {'other_books': json.dumps(new + best)}
+        return {'other_books': json.dumps(new + best + prom)}
+
+@register.simple_tag
+def return_data_three(user, user_additional_data, other_books):
+    if user.is_authenticated:
+        data_to_back = {'user_id': user.id, 'user_additional_data': serializers.serialize('json', [user_additional_data]),
+                        'other_books': json.dumps(other_books)
+                        }
+        return data_to_back
+    else:
+        return {'other_books': json.dumps(other_books)}
+
+
 
 
 

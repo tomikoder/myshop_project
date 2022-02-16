@@ -14,17 +14,13 @@ class BooksWithReviews(admin.ModelAdmin):
     ]
 
     def save_model(self, request, obj, form, change):
-        """
-        Given a model instance save it to the database.
-        """
         if change:
             obj.is_created = False
             form.changed_data.append('menu_img')
             form.changed_data.append('book_page_img')
-            obj.save(update_fields=form.changed_data)
         else:
             obj.is_created = True
-            obj.save()
+        super().save_model(request, obj, form, change)
 
 admin.site.register(Book, BooksWithReviews)
 

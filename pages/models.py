@@ -41,6 +41,7 @@ class Category(models.Model):
 class Product(models.Model):
     objects = Sorted_Items()
     name = models.CharField(max_length=100, null=False, blank=False)
+    categories = models.ManyToManyField(Category)
 
     def __str__(self):
         return self.name
@@ -100,6 +101,14 @@ class Book(models.Model):
         indexes = [
             models.Index(fields=['title']),
         ]
+    def serialize(self):
+        txt = ''
+        for a in self.author.all():
+            txt += a.name + ', '
+        txt = txt.rstrip(', ')
+        data_to_back = {'id': self.id, 'link': str(self.link), 'title': self.title, 'authors': txt, 'price': str(self.price), 'promotional_price': str(self.promotional_price),
+                        'menu_img': self.menu_img}
+        return data_to_back
 
     def get_authors_to_query_or(self):
         authors = list(self.author.all())
@@ -178,8 +187,9 @@ class Book(models.Model):
         if self.promotional_price <= 0:
             raise ValueError("Podana promocyjna cena jest nieodpowiednia.")
         else:
-            difference  = self.price - self.promotional_price
-            return round((difference * self.price) / 100)
+            diference = self.price - self.promotional_price
+            return round(diference / (self.price / 100))
+
 
     def __str__(self):
         return self.title

@@ -7,7 +7,7 @@
 {% block title %}{% endblock title %}
 
 {% block content %}
-    {% return_data_two user user_additional_data new best as data %}
+    {% return_data_three user user_additional_data books as data %}
     {{ data|json_script:"data_id" }}
     <div class="d-flex flex-row" style="">
         {% for p in page_obj|slice:":4" %}

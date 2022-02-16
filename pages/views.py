@@ -22,11 +22,24 @@ from decimal import *
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import connection
 from django.core.exceptions import MultipleObjectsReturned
+from django.http import Http404
 
 def dictfetchall(cursor):
     columns = [col[0] for col in cursor.description]
     data_to_back = [dict(zip(columns, row)) for row in cursor.fetchall()]
     return data_to_back
+
+book_categories =   ['astrofizyka', 'astronomia', 'autobiografia', 'biografia', 'dla dzieci', 'erotyka', 'eseje', 'etyka',
+                     'fantasy', 'filozofia', 'historyczne', 'horror', 'językoznawstwo', 'komiksy', 'kryminał', 'lektury', 'literatura dziecięca',
+                     'literatura', 'młodzieżowa', 'literatura obyczajowa', 'literatura piękna', 'nauka o literaturze',
+                     'naukispołeczne(psychologia)', 'pamiętnik', 'poezja', 'popularnonaukowa', 'poradniki', 'poradniki dla rodziców',
+                     'powieść historyczna', 'przygodowe', 'publicystyka literacka', 'reportaż', 'romans', 'science fiction', 'sensacja', 'socjologia']
+others_categories = ['gry planszowe', 'zabawki', 'zakładki']
+music_categories =  ['elektroniczna', 'jazz', 'klasyczna', 'metal', 'rap & hip-hop', 'regge', 'rock']
+movies_categories = ['animacja', 'anime', 'biografia', 'dla dzieci', 'dokumentalne', 'erotyka', 'fantasy', 'historyczne', 'horror', 'klasyka',
+                     'komedie', 'kryminał', 'przygodowe', 'romans', 'science fiction', 'sensacja', 'seriale', 'thriller']
+games_categories =  ['Nintendo', 'PC', 'Playstation', 'Xbox']
+
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class HomePageView(TemplateView):
@@ -37,6 +50,13 @@ class HomePageView(TemplateView):
         context['signup_form'] = signup_form
         context['login_form'] = login_form
         context['num_of_items_form'] = number_of_items
+        context['book_categories'] =   book_categories
+        context['others_categories'] = others_categories
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['games_categories'] = games_categories
+
+
         with connection.cursor() as cursor:
             cursor.execute('''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                             FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
@@ -98,6 +118,11 @@ class RegulaminPageView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['signup_form'] = signup_form
         context['login_form'] = login_form
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['book_categories'] =   book_categories
+        context['others_categories'] = others_categories
+        context['games_categories'] = games_categories
         return context
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -112,6 +137,11 @@ class BookDetailPageView(DetailView):
         context['num_of_items_form'] = number_of_items
         context['login_form'] = login_form
         context['comment_form'] = comment_form
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['book_categories'] =   book_categories
+        context['others_categories'] = others_categories
+        context['games_categories'] = games_categories
         user = self.request.user
         if user.is_authenticated:
             your_rate =  Book_Rate.objects.filter(book=self.object, user=user)
@@ -233,6 +263,12 @@ class New_Books(ListView):
         context['signup_form'] = signup_form
         context['login_form'] = login_form
         context['num_of_items_form'] = number_of_items
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['book_categories'] =   book_categories
+        context['others_categories'] = others_categories
+        context['games_categories'] = games_categories
+
         user = self.request.user
         if user.is_authenticated:
             context['user_additional_data'] = user.additionaldata
@@ -297,7 +333,7 @@ class Search_Book(New_Books):
     sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                   FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
-                                  WHERE b.title ILIKE %s OR b.title ILIKE %s%
+                                  WHERE b.title ILIKE %s OR b.title ILIKE %s
                                   GROUP BY b.id
                                   LIMIT %s)
                                   SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
@@ -306,6 +342,28 @@ class Search_Book(New_Books):
 
     def get_args_to_query(self):
         return (self.request.GET['query'] + '%', '%' + self.request.GET['query'] + '%', self.limit)
+
+class Specific_Book_Category(New_Books):
+    template_name = 'category.html'
+    sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
+                                  FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
+                                                       INNER JOIN pages_author AS a ON a.id = ba.author_id
+                                                       INNER JOIN pages_book_category AS bc ON b.id = bc.book_id
+                                                       INNER JOIN pages_category AS c ON bc.category_id = c.id  
+                                  WHERE c.name = %s                                            
+                                  GROUP BY b.id
+                                  LIMIT %s)
+                                  SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
+                                  FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
+                 '''
+
+    def get_args_to_query(self):
+            category = self.kwargs.get("category")
+            if category not in book_categories:
+                raise Http404("Kategoria nie istnieje")
+            return (category, self.limit)
+
+
 
 
 
@@ -423,13 +481,13 @@ def add_product_to_shopping_cart(request):
             for b in user_additional_data.order_list:
                 if b['id'] == book['id']:
                     b['amount'] += book['amount']
-                    if b['promotional_price'] == None:
+                    if b['promotional_price'] == '0.00':
                         b['total'] = '{0:.2f}'.format((b['amount'] * float(b['price'])))
                     else:
                         b['total'] = '{0:.2f}'.format((b['amount'] * float(b['promotional_price'])))
                     break
             else:
-                if book['promotional_price'] == None:
+                if book['promotional_price'] == '0.00':
                     book['total'] = '{0:.2f}'.format((book['amount'] * float(book['price'])))
                     book['index'] = len(user_additional_data.order_list)
                 else:
@@ -442,13 +500,13 @@ def add_product_to_shopping_cart(request):
             for b in request.session['order_list']:
                 if b['id'] == book['id']:
                     b['amount'] += book['amount']
-                    if b['promotional_price'] == None:
+                    if b['promotional_price'] == '0.00':
                         b['total'] = '{0:.2f}'.format((b['amount'] * float(b['price'])))
                     else:
                         b['total'] = '{0:.2f}'.format((b['amount'] * float(b['promotional_price'])))
                     break
             else:
-                if book['promotional_price'] == None:
+                if book['promotional_price'] == '0.00':
                     book['total'] = '{0:.2f}'.format((book['amount'] * float(book['price'])))
                     book['index'] = len(request.session['order_list'])
                 else:

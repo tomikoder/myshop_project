@@ -14,6 +14,10 @@ $(function() {
 		$(this).next("ul").toggle();
 	});
 
+    $("#menu input").click(function(event) {
+    });
+
+
 	var other_books = JSON.parse(your_data['other_books']);
 
 	$('#loginform').on('submit', function(event) {
@@ -127,7 +131,7 @@ $(function() {
             elem_two = $("#number");
             elem.text('(' + (Number(elem.text().slice(1, -1)) + Number(elem_two.val())) + ')');
             if (elem_three.hasClass('main')) {
-                elem = JSON.parse(your_data['book'])[0];
+                elem = JSON.parse(your_data['book']);
             } else {
                 index = Number(elem_three.attr('index'));
                 elem = other_books[index];

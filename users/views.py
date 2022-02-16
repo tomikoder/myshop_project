@@ -12,6 +12,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from pages.models import Product
+from pages.views import music_categories, movies_categories, book_categories, others_categories, games_categories
 
 class CustomSignupView(SignupView):
     context_object_name = 'signup_form'
@@ -36,6 +38,11 @@ class YouShoppingCart(DetailView):
         context = super().get_context_data(**kwargs)
         context['signup_form'] = signup_form
         context['login_form'] = login_form
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['book_categories'] =   book_categories
+        context['others_categories'] = others_categories
+        context['games_categories'] = games_categories
         return context
 
     def get_object(self):
