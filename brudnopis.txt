@@ -1,2 +1,0 @@
-new_book.cover_img = SimpleUploadedFile(os.path.split(pic_link)[-1], pic.content)
-
