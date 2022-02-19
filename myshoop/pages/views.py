@@ -343,14 +343,14 @@ class Search_Book(New_Books):
     def get_args_to_query(self):
         return (self.request.GET['query'] + '%', '%' + self.request.GET['query'] + '%', self.limit)
 
-class Specific_Book_Category(New_Books):
+class Specific_Book_Categories(New_Books):
     template_name = 'category.html'
     sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                   FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
                                                        INNER JOIN pages_book_category AS bc ON b.id = bc.book_id
                                                        INNER JOIN pages_category AS c ON bc.category_id = c.id  
-                                  WHERE c.name = %s                                            
+                                  WHERE c.name in %s                                            
                                   GROUP BY b.id
                                   LIMIT %s)
                                   SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
@@ -358,14 +358,9 @@ class Specific_Book_Category(New_Books):
                  '''
 
     def get_args_to_query(self):
-            category = self.kwargs.get("category")
-            if category not in book_categories:
-                raise Http404("Kategoria nie istnieje")
-            return (category, self.limit)
-
-
-
-
+        categories = self.request.GET.get('cat')
+        categories = tuple(categories.split())
+        return (categories, self.limit)
 
 def vote_on_book(request):
     if request.is_ajax() and request.method == 'POST' and request.user.is_authenticated:

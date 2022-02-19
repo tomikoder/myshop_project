@@ -9,13 +9,55 @@ $(function() {
         is_login = 0;
     }
 
-	$("#menu li").click(function(event) {
+    var curr_menu_li = null
+
+	$("#menu li.category").click(function(event) {
 		event.preventDefault();
-		$(this).next("ul").toggle();
+		if (curr_menu_li && $(this).prop("id") == curr_menu_li.prop("id")) {
+		    curr_menu_li.next("ul").toggle();
+		    curr_menu_li = null;
+		} else {
+		    if (curr_menu_li) {
+		        curr_menu_li.next("ul").toggle();
+		    }
+		    curr_menu_li = $(this);
+		    curr_menu_li.next("ul").toggle();
+		}
 	});
 
-    $("#menu input").click(function(event) {
+	function startTime() {
+	    now = new Date();
+        if (now.getTime() >= time.getTime()) {
+            time = null;
+            link = "/category/books/?cat="
+            elem = curr_menu_li.next().find("input");
+            elem.each(function(){
+                if ($(this).prop("checked") == true) {
+                    link += $(this).prop("id").slice(2) + ' ';
+                }
+            });
+            if (link != "/category/books/?cat=") {
+                location.href = link;
+            }
+        } else {
+            setTimeout(startTime, 1000);
+        }
+	}
+
+    var time = null;
+    $("#menu input").on('click', function(event) {
+        if ($(this).prop("checked") == true) {
+            if (time == null) {
+                time = new Date();
+                time.setSeconds(time.getSeconds() + 2);
+                startTime();
+            } else {
+                time = new Date();
+                time.setSeconds(time.getSeconds() + 2);
+            }
+        }
     });
+
 
 
 	var other_books = JSON.parse(your_data['other_books']);

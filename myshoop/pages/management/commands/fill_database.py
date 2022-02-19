@@ -80,8 +80,7 @@ class Command(BaseCommand):
                     if b_isbn in books_in_db:
                         continue
                 else:
-                    if len(Book.objects.filter(title=b_title)) == 1:
-                        continue
+                    b_isbn = 0
 
                 b_original_title = html_2.find("dt", string=re.compile('Tytuł oryginału:'))
                 if b_original_title:
