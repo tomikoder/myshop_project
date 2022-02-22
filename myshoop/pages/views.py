@@ -310,7 +310,6 @@ class Prom_Books(New_Books):
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
                                   WHERE b.availability = true AND b.promotional_price IS NOT NULL                                            
                                   GROUP BY b.id
-                                  ORDER BY b.number_of_sold DESC
                                   LIMIT %s)
                                   SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
                                   FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
@@ -321,8 +320,9 @@ class Best_Books(New_Books):
     sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                   FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
-                                  WHERE b.availability = true AND b.promotional_price IS NOT NULL                                            
+                                  WHERE b.availability = true                                          
                                   GROUP BY b.id
+                                  ORDER BY b.number_of_sold DESC
                                   LIMIT %s)
                                   SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
                                   FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
@@ -330,6 +330,7 @@ class Best_Books(New_Books):
 
 class Search_Book(New_Books):
     template_name = 'result_search.html'
+    limit = None
     sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                   FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
@@ -345,6 +346,7 @@ class Search_Book(New_Books):
 
 class Specific_Book_Categories(New_Books):
     template_name = 'category.html'
+    limit = None
     sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                   FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
@@ -359,8 +361,39 @@ class Specific_Book_Categories(New_Books):
 
     def get_args_to_query(self):
         categories = self.request.GET.get('cat')
-        categories = tuple(categories.split())
+        categories = tuple(categories.split('  '))
         return (categories, self.limit)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        categories = self.request.GET.get('cat')
+        context['categories'] = list(categories.split('  '))
+        context['categories_url'] = categories
+        return context
+
+class Specific_Book_Category(New_Books):
+    template_name = 'category.html'
+    limit = None
+    sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
+                                  FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
+                                                       INNER JOIN pages_author AS a ON a.id = ba.author_id
+                                                       INNER JOIN pages_book_category AS bc ON b.id = bc.book_id
+                                                       INNER JOIN pages_category AS c ON bc.category_id = c.id  
+                                  WHERE c.name = %s                                            
+                                  GROUP BY b.id
+                                  LIMIT %s)
+                                  SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
+                                  FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
+                 '''
+    def get_args_to_query(self):
+        indicator = self.kwargs.get("category")
+        return (indicator, self.limit)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = [self.kwargs.get("category")]
+        context['categories_url'] = context['categories']
+        return context
 
 def vote_on_book(request):
     if request.is_ajax() and request.method == 'POST' and request.user.is_authenticated:

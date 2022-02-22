@@ -20,11 +20,11 @@
 <div id="products">
 {% for p in products_list %}
     <div id="index{{ p.index }}" class="product">
-        <a href="/{{ b.product_type }}/{{ b.link }}">
+        <a href="/{{ p.product_type }}/{{ p.link }}">
             <img class="float-left pr-2" src="{{ p.menu_img }}" style="height: 120px;">
         </a>
         <div class="d-flex">
-            <h3 class="mt-6"><a href="/{{ b.product_type }}/{{ b.link }}">{{ p.title }}</a></h3>
+            <h3 class="mt-6"><a href="/{{ p.product_type }}/{{ p.link }}">{{ p.title }}</a></h3>
             <a href="" class="ml-auto"><i class="fas fa-times" style="font-size: 30px;"></i></a>
         </div>
         <p><strong>Ilość: <input type="number" min="1" max="100" value="{{ p.amount }}" class="number form-control" style="width: 8%;">Cena: <span class="price">{{ p.total }}</span></strong></p>

@@ -51,14 +51,13 @@ def return_data_two(user, user_additional_data, new, best, prom):
         return {'other_books': json.dumps(new + best + prom)}
 
 @register.simple_tag
-def return_data_three(user, user_additional_data, other_books):
+def return_data_three(user, user_additional_data, other_books, categories):
     if user.is_authenticated:
-        data_to_back = {'user_id': user.id, 'user_additional_data': serializers.serialize('json', [user_additional_data]),
-                        'other_books': json.dumps(other_books)
+        return {'user_id': user.id, 'user_additional_data': serializers.serialize('json', [user_additional_data]),
+                        'other_books': json.dumps(other_books), 'categories': json.dumps(categories)
                         }
-        return data_to_back
     else:
-        return {'other_books': json.dumps(other_books)}
+        return {'other_books': json.dumps(other_books), 'categories': json.dumps(categories)}
 
 
 

@@ -1,10 +1,10 @@
 from django.urls import reverse_lazy
 from allauth.account.views import SignupView, LoginView
-from .forms import CustomSignupForm as signup_form, CustomLoginForm as login_form, DeliveryAddress
+from .forms import CustomSignupForm as signup_form, CustomLoginForm as login_form, DeliveryAddress, UserEditForm
 from allauth.account.adapter import get_adapter
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
 from django.shortcuts import render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 from .models import AdditionalData
 from django.http import JsonResponse
 from django.core import serializers
@@ -90,11 +90,12 @@ class Finalize_Order(DetailView):
         return obj
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
-class Person_Page(LoginRequiredMixin, DetailView):
+class Person_Page(LoginRequiredMixin, UpdateView):
     template_name = 'personalsite.html'
     model = get_user_model()
     context_object_name = 'user'
     raise_exception = True
+    form_class = UserEditForm
 
     def get_object(self):
         user_additional_data = self.request.user.additionaldata

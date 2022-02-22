@@ -11,14 +11,42 @@ $(function() {
 
     var curr_menu_li = null
 
+    if ('categories' in your_data) {
+        var myURL = new URL(window.location.href);
+        myURL = myURL.pathname.split('/');
+        categories = JSON.parse(your_data['categories']);
+        if (myURL.includes('books')) {
+            curr_menu_li = $("#menu #cat_books");
+            elem = curr_menu_li.next().find("input");
+            elem.each(function() {
+                if (categories.includes($(this).prop("id"))) {
+                    $(this).prop("checked", true);
+                }
+            });
+            curr_menu_li.next("ul").toggle();
+        }
+    }
+
 	$("#menu li.category").click(function(event) {
 		event.preventDefault();
 		if (curr_menu_li && $(this).prop("id") == curr_menu_li.prop("id")) {
 		    curr_menu_li.next("ul").toggle();
 		    curr_menu_li = null;
+		    elem = curr_menu_li.next().find("input");
+            elem.each(function(){
+                if ($(this).prop("checked") == true) {
+                    $(this).prop("checked", false);
+                }
+            });
 		} else {
 		    if (curr_menu_li) {
 		        curr_menu_li.next("ul").toggle();
+		        elem = curr_menu_li.next().find("input");
+		        elem.each(function(){
+                    if ($(this).prop("checked") == true) {
+                        $(this).prop("checked", false);
+                    }
+                });
 		    }
 		    curr_menu_li = $(this);
 		    curr_menu_li.next("ul").toggle();
@@ -33,7 +61,7 @@ $(function() {
             elem = curr_menu_li.next().find("input");
             elem.each(function(){
                 if ($(this).prop("checked") == true) {
-                    link += $(this).prop("id").slice(2) + ' ';
+                    link += $(this).prop("id") + '  ';
                 }
             });
             if (link != "/category/books/?cat=") {

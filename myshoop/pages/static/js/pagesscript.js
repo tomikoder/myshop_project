@@ -3,6 +3,8 @@ $(function() {
     var voted = 0;
     var update_vote = 0;
     var your_data = JSON.parse($("#data_id").text());
+
+
     var button1 = 1;
     var button2 = 0;
     var button3 = 0;

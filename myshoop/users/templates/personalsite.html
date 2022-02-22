@@ -3,5 +3,53 @@
 {% block title %} Twoja strona {% endblock title %}
 
 {% block content %}
+<h1>Twoje Dane</h1>
+<form method="POST" id="signupform" enctype="multipart/form-data">{% csrf_token %}
+    <div class="form-group">
+        <label for="{{ signup_form.email.id_for_label }}">Twój email:</label>
+        <p class="text-danger"><small id="err_email"></small></p>
+        {{ form.email }}
+    </div>
+    <div class="form-group">
+        <label for="{{ signup_form.first_name.id_for_label }}">Imię:</label>
+        <p class="text-danger"><small id="err_first_name"></small></p>
+        {{ form.first_name }}
+    </div>
+    <div class="form-group">
+        <label for="{{ signup_form.last_name.id_for_label }}">Nazwisko:</label>
+        <p class="text-danger"><small id="err_last_name"></small></p>
+        {{ form.last_name }}
+    </div>
+    <div class="form-group">
+        <label for="{{ signup_form.city.id_for_label }}">Miejscowość:</label>
+        <p class="text-danger"><small id="err_city"></small></p>
+        {{ form.city }}
+    </div>
+    <div class="form-group">
+        <label for="{{ signup_form.region.id_for_label }}">Województwo</label>
+        <p class="text-danger"><small id="err_region"></small></p>
+        {{ form.region }}
+    </div>
+    <div class="form-group">
+        <label for="{{ signup_form.address.id_for_label }}">Adres:</label>
+        <p class="text-danger"><small id="err_address"></small></p>
+        {{ form.address }}
+        <small id="addressHelp" class="form-text text-muted">Ulica i numer domu, mieszkania.</small>
+    </div>
+    <div class="form-group">
+        <label for="{{ signup_form.postal_code.id_for_label }}">Kod pocztowy:</label>
+        <p class="text-danger"><small id="err_postal_code"></small></p>
+        {{ form.postal_code }}
+        <small id="postalHelp" class="form-text text-muted">Kod pocztowy odzielony - np 23-400</small>
+    </div>
+    <div class="form-group">
+        <label for="{{ signup_form.phone_number.id_for_label }}">Numer telefonu:</label>
+        <p class="text-danger"><small id="err_phone_number"></small></p>
+        {{ form.phone_number }}
+    </div>
+    <div class="modal-footer">
+        <button type="submit" id="contactSubmit" class="btn btn-success">Wyślij</button>
+    </div>
+</form>
 {% endblock content %}
 

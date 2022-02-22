@@ -163,4 +163,3 @@ ACCOUNT_FORMS = {
     'signup': 'users.forms.CustomSignupForm',
 }
 ACCOUNT_ADAPTER = 'users.adapter.MyDefaultAdapter'
-ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'home'
