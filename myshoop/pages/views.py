@@ -29,6 +29,9 @@ def dictfetchall(cursor):
     data_to_back = [dict(zip(columns, row)) for row in cursor.fetchall()]
     return data_to_back
 
+
+
+
 book_categories =   ['astrofizyka', 'astronomia', 'autobiografia', 'biografia', 'dla dzieci', 'erotyka', 'eseje', 'etyka',
                      'fantasy', 'filozofia', 'historyczne', 'horror', 'językoznawstwo', 'komiksy', 'kryminał', 'lektury', 'literatura dziecięca',
                      'literatura', 'młodzieżowa', 'literatura obyczajowa', 'literatura piękna', 'nauka o literaturze',
@@ -237,9 +240,10 @@ class BookDetailPageView(DetailView):
                                                                                INNER JOIN pages_product AS p ON b.product_id = p.id 
                                                           WHERE b.link = %s
                                                           GROUP BY b.id)
-                                                          SELECT b2.*, p.name
+                                                          SELECT b2.*, p.name AS product_type
                                                           FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                     
                                          ''', [indicator]))
+
         return queryset[0]
 
 class New_Books(ListView):
@@ -308,7 +312,7 @@ class Prom_Books(New_Books):
     sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                   FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
                                                        INNER JOIN pages_author AS a ON a.id = ba.author_id
-                                  WHERE b.availability = true AND b.promotional_price IS NOT NULL                                            
+                                  WHERE b.availability = true AND b.promotional_price > 0.00                                            
                                   GROUP BY b.id
                                   LIMIT %s)
                                   SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index

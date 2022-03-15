@@ -67,7 +67,7 @@ class MyDefaultAdapter(DefaultAccountAdapter):
             # Ability not to commit makes it easier to derive from
             # this adapter by adding
             user.save()
-            user_is_created.send(sender=MyDefaultAdapter)
+            user_is_created.send(sender=MyDefaultAdapter, instance=user)
         return user
 
     def confirm_email(self, request, email_address):

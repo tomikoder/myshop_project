@@ -10,20 +10,16 @@
 
 {% return_data2 user user_additional_data price_one price_two as data %}
 {{ data|json_script:"data_id" }}
-
-<h1>Adres dostawy</h1>
-<div class="d-flex float-left rounded-sm" style="width: 50%">
-    <form method="POST" id="signupform" enctype="multipart/form-data">
-        <p class="text-danger"><small id="err_nonfield"></small></p>
+<form class="d-flex float-left rounded-sm" method="POST" id="form_one" enctype="multipart/form-data">{% csrf_token %}
+    <div style="width: 50%">
+        <h1>Adres dostawy</h1>
         <div class="form-group">
-            <label for="{{ form.first_name.id_for_label }}">Imię:</label>
-            <p class="text-danger"><small id="err_first_name"></small></p>
-            {{ form.first_name }}
+            <label>Imię:</label>
+            <input type="text" class="form-control" readonly value={{ first_name }}>
         </div>
         <div class="form-group">
-            <label for="{{ form.last_name.id_for_label }}">Nazwisko:</label>
-            <p class="text-danger"><small id="err_last_name"></small></p>
-            {{ form.last_name }}
+            <label>Nazwisko:</label>
+            <input type="text" class="form-control" readonly value={{ last_name }}>
         </div>
         <div class="form-group">
             <label for="{{ form.city.id_for_label }}">Miejscowość:</label>
@@ -44,7 +40,7 @@
         <div class="form-group">
             <label for="{{ form.postal_code.id_for_label }}">Kod pocztowy:</label>
             <p class="text-danger"><small id="err_postal_code"></small></p>
-            {{ form.postal_code }}
+            {{ form.postal_code_two }}
             <small id="postalHelp" class="form-text text-muted">Kod pocztowy odzielony - np 23-400</small>
         </div>
         <div class="form-group">
@@ -52,52 +48,25 @@
             <p class="text-danger"><small id="err_phone_number"></small></p>
             {{ form.phone_number }}
         </div>
-        <div class="form-check">
-            {{ form.regulamin }}
-            <label class="form-check-label" for="{{ form.regulamin.id_for_label }}">Zgadzam się na <a href="{% url 'regulamin' %}">regulamin</a></label>
-        </div>
-    </form>
-</div>
-<br>
-<div class="d-flex" style="width: 50%">
-    <form>
-        <div>
-        <h3>Sposób płatności</h3>
-        <div class="form-check">
-            <label class="form-check-label">
-            <input type="radio" class="form-check-input" name="payment" checked="checked">Płatność przy odbiorze (13 zł)
-            </label>
-        </div>
-        <div class="form-check">
-            <label class="form-check-label">
-            <input type="radio" class="form-check-input" name="payment">Przelew (9 zł)
-            </label>
-        </div>
-        </div>
+    </div>
+    <div class="pl-5 pr-6" style="width: 50%">
+        <h3 class="pt-2">Sposób dostawy:</h3>
+        <br>
+        {% for dm in form.delivery_method %}
+            {{ dm }}
+        {% endfor %}
         <br>
         <br>
-        <div>
-        <h3>Sposób dostawy</h3>
-        <div class="form-check">
-            <label class="form-check-label">
-            <input type="radio" class="form-check-input" name="pickup" checked="checked">Do domnu
-            </label>
-        </div>
-        <div class="form-check">
-            <label class="form-check-label">
-            <input type="radio" class="form-check-input" name="pickup">Punkt odbioru
-            </label>
-        </div>
-        </div>
-    </form>
-</div>
-<br>
-<br>
-<h3>Do zapłaty: <span id="sum">{{ price_one }}</span></h3>
-<br>
-<br>
-<button type="button" class="btn btn-primary">Realizuj zamówienie</button>
+        <h3>Sposób płatności:</h3>
+        <br>
+        {% for pm in form.payment_method %}
+            {{ pm }}<br>
+        {% endfor %}
+        <br>
+        <h3>Do zapłaty: <span id="sum">{{ price_one }}</span></h3>
+        <hr>
+        <button type="submit" class="btn btn-primary" id="">Realizuj zamówienie</button>
+    </div>
+</form>
 {% endblock content %}
-
-
 {% block script %}<script src="{% static 'js/finalizeorderscript.js' %}"></script>{% endblock script %}

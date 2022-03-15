@@ -5,7 +5,9 @@ from allauth.account import app_settings
 from allauth.utils import set_form_field_order
 from .custom_validators import validate_sign, validate_length, validate_number
 from django.contrib.auth import get_user_model
-from .models import CustomUser
+from .models import CustomUser, Orders_Two
+from .custom_signals import order_instance_is_created
+from django.http import HttpResponseRedirect
 
 class PasswordField(forms.CharField):
     def __init__(self, *args, **kwargs):
@@ -90,7 +92,12 @@ class CustomSignupForm(SignupForm):
         )
         self.fields["password2"] = PasswordField(label=("Podaj hasło jeszcze raz"))
 
-class UserEditForm(forms.ModelForm):
+class Custom_CharField(forms.CharField):
+    def to_python(self, value):
+        val = super().to_python()
+        return int(''.join(val.split('-')))
+
+class UserDataForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['email', 'first_name', 'last_name', 'city', 'region', 'address', 'postal_code', 'phone_number', ]
@@ -109,17 +116,44 @@ class UserEditForm(forms.ModelForm):
     postal_code.validators.append(validate_sign)
     postal_code.validators.append(validate_length)
     phone_number.validators.append(validate_number)
+
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.postal_code = self.instance.return_postal_code()
         kwargs['instance'] = self.instance
         super().__init__(*args, **kwargs)
 
-
     def return_postal_code(self):
         pc = str(self.postal_code)
         return pc[:2] + "-" + pc[2:5]
 
+class UserDataFormOrder(forms.ModelForm):
+    payment_methods_choices  = [(1, "Przy odbiorze (13 zł)"),
+                                (2, "Przelewem (9 zł)")
+                                ]
+    delivery_methods_choices = [(1, "Do domu"),
+                                (2, "W punkcie odbioru")
+                                ]
+    class Meta:
+        model = Orders_Two
+        fields = ['city', 'region', 'address', 'postal_code_two', 'phone_number', 'payment_method', 'delivery_method']
+    city = forms.CharField(max_length=20, label='Miejscowość', widget=forms.TextInput(attrs={"class": "form-control"},))
+    region = forms.CharField(widget=forms.Select(choices=lista_województw, attrs={"class": "custom-select custom-select-sm"}))
+    address = forms.CharField(max_length=30, label="Ulica + numer domu, mieszkania", widget=forms.TextInput(attrs={"class": "form-control", "aria-describedby":  "addressHelp"},))
+    postal_code_two = forms.CharField(max_length=6, label="Kod pocztowy xx-xxx", widget=forms.TextInput(attrs={"class": "form-control", "aria-describedby":  "postalHelp"},))
+    phone_number = forms.IntegerField(localize=True, label="Numer teleffonu", widget=forms.NumberInput(attrs={"class": "form-control"},))
+    payment_method = forms.ChoiceField(choices=payment_methods_choices,
+                                       widget=forms.RadioSelect(attrs={"class": "form-check-label payment"}))
+    delivery_method = forms.ChoiceField(choices=delivery_methods_choices,
+                                        widget=forms.RadioSelect(attrs={"class": "form-check-label delivery"}))
+    postal_code_two.validators.append(validate_sign)
+    postal_code_two.validators.append(validate_length)
+    phone_number.validators.append(validate_number)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.user = self.user
 
 class CustomLoginForm(LoginForm):
     password = PasswordField(label=("Hasło"), autocomplete="current-password")

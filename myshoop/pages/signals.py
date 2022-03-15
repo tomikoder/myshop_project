@@ -1,4 +1,5 @@
 from django.db.models.signals import post_save, pre_save, post_delete
+from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.conf import settings
 from PIL import Image
@@ -23,6 +24,21 @@ def content_file_name(filename):
     ext = filename.split('.')[-1]
     filename = "%s_lg.%s" % (index, ext)
     return filename, ext
+
+@receiver(user_logged_in)
+def update_shoping_cart(sender, user, request, **kwargs):
+    user_additional_data = user.additionaldata
+    if ('order_list' in request.session) and request.session['order_list']:
+        for b in request.session['order_list']:
+            for b2 in user_additional_data.order_list:
+                if b['id'] == b2['id']:
+                    b2['amount'] += b['amount']
+                    break
+            else:
+                user_additional_data.order_list.append(b)
+        user_additional_data.save()
+        request.session['order_list'] = []
+
 
 @receiver(pre_save, sender=Book)
 def add_minipics(sender, instance, **kwargs):

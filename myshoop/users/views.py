@@ -1,10 +1,10 @@
 from django.urls import reverse_lazy
 from allauth.account.views import SignupView, LoginView
-from .forms import CustomSignupForm as signup_form, CustomLoginForm as login_form, DeliveryAddress, UserEditForm
+from .forms import CustomSignupForm as signup_form, CustomLoginForm as login_form, DeliveryAddress, UserDataForm, UserDataFormOrder
 from allauth.account.adapter import get_adapter
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
 from django.shortcuts import render
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView, UpdateView, CreateView
 from .models import AdditionalData
 from django.http import JsonResponse
 from django.core import serializers
@@ -13,8 +13,11 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from pages.models import Product
+from users.models import AdditionalData
 from pages.views import music_categories, movies_categories, book_categories, others_categories, games_categories
+from .models import Orders_Two
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomSignupView(SignupView):
     context_object_name = 'signup_form'
     form_class = signup_form
@@ -22,6 +25,7 @@ class CustomSignupView(SignupView):
     success_message = 'Gratulacje: Założyłeś konto na MyShop.com.'
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomLoginView(LoginView):
     context_object_name = 'login_form'
     form_class = login_form
@@ -69,25 +73,53 @@ class YouShoppingCart(DetailView):
             return obj
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
-class Finalize_Order(DetailView):
+class Finalize_Order(CreateView):
     template_name = 'finalizeorder.html'
-    model = AdditionalData
-    context_object_name = 'user_additional_data'
+    form_class = UserDataFormOrder
+    model = Orders_Two
+    success_url = '/'
 
-    def get_object(self):
-        queryset = self.model._default_manager.all()
-        indicator = self.request.user.pk
-        queryset = queryset.filter(pk=indicator)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_additional_Data = AdditionalData.objects
+        user_id = self.request.user.pk
+        queryset = user_additional_Data.filter(pk=user_id)
         obj = queryset.get()
         sum = float(0)
         c = 0
         for p in obj.order_list:
             sum += float(p['total'])
             c += p['amount']
-        self.extra_context = {'num_of_items_in_shca': c,
-                              'price_one': f'{(sum + 13):.2f}', 'price_two': f'{(sum + 9):.2f}',
-                              'form': DeliveryAddress(self.request.user.return_form_data())}
-        return obj
+
+        context.update({'num_of_items_in_shca': c, 'user_additional_data': obj,
+                   'price_one': f'{(sum + 13):.2f}', 'price_two': f'{(sum + 9):.2f}',
+                   'first_name': self.request.user.first_name, 'last_name': self.request.user.last_name
+                  })
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = {
+            'initial': self.request.user.return_form_data(),
+            'prefix': self.get_prefix(),
+        }
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+            })
+        return kwargs
+
+    def get_form(self, form_class=None):
+        """Return an instance of the form to be used in this view."""
+        if form_class is None:
+            form_class = self.get_form_class()
+            form_class.user = self.request.user
+        return form_class(**self.get_form_kwargs())
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        return super().post(request, *args, **kwargs)
+
+
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class Person_Page(LoginRequiredMixin, UpdateView):
@@ -95,13 +127,12 @@ class Person_Page(LoginRequiredMixin, UpdateView):
     model = get_user_model()
     context_object_name = 'user'
     raise_exception = True
-    form_class = UserEditForm
+    form_class = UserDataForm
 
     def get_object(self):
         user_additional_data = self.request.user.additionaldata
         self.extra_context = {'num_of_items_in_shca': len(user_additional_data.order_list)}
         return self.request.user
-
 
 def clear_shopping_cart(request):
     if request.is_ajax() and request.method == 'POST':
@@ -176,10 +207,3 @@ def change_product_amount_in_sch(request):
             return JsonResponse(data={'new_total': cookies['order_list'][index]['total'], 'new_sum': f'{sum:.2f}'}, status=201)
     else:
         return JsonResponse(data={}, status=500)
-
-
-
-
-
-
-

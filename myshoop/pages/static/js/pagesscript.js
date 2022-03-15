@@ -111,7 +111,7 @@ $(function() {
             datatosend = {};
             voted = 1;
             elem = JSON.parse(your_data['book']);
-            elem = elem[0]['pk'];
+            elem = elem['id'];
             datatosend.book_pk = elem;
             stars = sib.length + 1;
 	        datatosend.stars = stars;
@@ -168,7 +168,7 @@ $(function() {
 	    datatosend = {};
 	    mycookie = Cookies.get("csrftoken");
 	    elem = JSON.parse(your_data['book']);
-        elem = elem[0]['pk'];
+        elem = elem['id'];
         datatosend.book_pk = elem;
         datatosend.user_additional_data = your_data['user_additional_data'];
         elem = $(this);
@@ -228,7 +228,7 @@ $(function() {
 	            datatosend = {};
                 datatosend.subject = $("#subject").val();
                 datatosend.content = $("#content").val();
-                datatosend.book_pk = JSON.parse(your_data['book'])[0]['pk'];
+                datatosend.book_pk = JSON.parse(your_data['book'])['id'];
                 datatosend.your_rate = your_data['your_rate'];
                 datatosend.num_of_reviews = your_data['num_of_reviews'];
                 mycookie = Cookies.get("csrftoken");

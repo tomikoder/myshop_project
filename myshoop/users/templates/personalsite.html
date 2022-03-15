@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>Twoje Dane</h1>
-<form method="POST" id="signupform" enctype="multipart/form-data">{% csrf_token %}
+<form method="POST" id="signupform" enctype="multipart/form-data" style="width: 50%;">{% csrf_token %}
     <div class="form-group">
         <label for="{{ signup_form.email.id_for_label }}">Twój email:</label>
         <p class="text-danger"><small id="err_email"></small></p>

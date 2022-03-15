@@ -8,6 +8,14 @@ $(function() {
         is_login = 0;
     }
 
+
+    $("#finalize").click(function(event) {
+        if (!is_login) {
+            event.preventDefault();
+            $("#signupmodal").modal("show");
+        }
+    });
+
     $("#clearshc").click(function(event) {
         event.preventDefault();
         datatosend = {};
@@ -80,7 +88,7 @@ $(function() {
     });
 
     //Usuwa produkt z koszyka
-    $(".product div a").click(function(event) {
+    $(".product div a.cls").click(function(event) {
         event.preventDefault();
         elem = $(this).parent().parent();
         mycookie = Cookies.get("csrftoken");

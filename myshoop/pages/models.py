@@ -13,6 +13,8 @@ class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
     comment_num = models.IntegerField(default=0, null=False)
     pics_num = models.IntegerField(default=100, null=False)
+    order_num = models.IntegerField(default=0)
+    order_num_two = models.IntegerField(default=0)
 
 class Sorted_Items(models.Manager):
     def get_queryset(self):
@@ -107,7 +109,7 @@ class Book(models.Model):
             txt += a.name + ', '
         txt = txt.rstrip(', ')
         data_to_back = {'id': self.id, 'link': str(self.link), 'title': self.title, 'authors': txt, 'price': str(self.price), 'promotional_price': str(self.promotional_price),
-                        'menu_img': self.menu_img}
+                        'menu_img': self.menu_img, 'product_type': self.product_type}
         return data_to_back
 
     def get_authors_to_query_or(self):

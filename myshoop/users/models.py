@@ -21,8 +21,7 @@ class CustomUser(AbstractUser):
         return pc[:2] + "-" + pc[2:5]
 
     def return_form_data(self):
-        return {'first_name': self.first_name, 'last_name': self.last_name,
-                'city': self.city, 'address': self.address, 'postal_code': self.return_postal_code(),
+        return {'city': self.city, 'address': self.address, 'postal_code_two': self.return_postal_code(),
                 'phone_number': self.phone_number, 'region': self.region
                 }
 
@@ -30,4 +29,24 @@ class AdditionalData(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
     liked_books = models.JSONField(default=dict)
     order_list = models.JSONField(default=list, null=False)
+
+class Orders_Two(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
+    number = models.IntegerField()
+    payment_method = models.IntegerField(null=False, default='BD', choices=[
+                                                            (1, 'Karta kredytowa'),
+                                                            (2, 'Płatność gotówką'),
+                                                         ])
+    delivery_method = models.IntegerField(null=False, default='BD', choices=[
+                                                            (1, 'Dostawa kurierska'),
+                                                            (2, 'Punkt odbioru'),
+                                                         ])
+    order_list = models.JSONField(default=list, null=False)
+    city = models.CharField(max_length=20, blank=True, default='')
+    region = models.CharField(max_length=20, default='1')
+    address = models.CharField(max_length=20, blank=True, default='')
+    phone_number = models.IntegerField(null=True, default=None)
+    postal_code_two = models.CharField(max_length=6, null=True, default=None)
+
+
 

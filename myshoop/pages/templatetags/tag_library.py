@@ -29,6 +29,7 @@ def return_key_val(d, k):
 
 @register.simple_tag
 def return_data(user, book, book_reviews, your_rate, is_reviewed, user_additional_data, you_liked, num_of_reviews, other_books):
+    print(book.serialize())
     if user.is_authenticated:
         data_to_back = {'user_id': user.id, 'book': json.dumps(book.serialize()), 'book_reviews': serializers.serialize('json', book_reviews), 'is_reviewed': is_reviewed,
                         'user_additional_data': serializers.serialize('json', [user_additional_data]), 'you_liked': you_liked,
