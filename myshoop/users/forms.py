@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from .models import CustomUser, Orders_Two
 from .custom_signals import order_instance_is_created
 from django.http import HttpResponseRedirect
+from copy import copy
 
 class PasswordField(forms.CharField):
     def __init__(self, *args, **kwargs):
@@ -154,6 +155,7 @@ class UserDataFormOrder(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.user = self.user
+        self.instance.order_list = copy(self.additionaldata.order_list)
 
 class CustomLoginForm(LoginForm):
     password = PasswordField(label=("Hasło"), autocomplete="current-password")

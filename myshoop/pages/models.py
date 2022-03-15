@@ -9,6 +9,7 @@ from django.contrib import admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now
 
+
 class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
     comment_num = models.IntegerField(default=0, null=False)

@@ -81,17 +81,13 @@ class Finalize_Order(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_additional_Data = AdditionalData.objects
-        user_id = self.request.user.pk
-        queryset = user_additional_Data.filter(pk=user_id)
-        obj = queryset.get()
         sum = float(0)
         c = 0
-        for p in obj.order_list:
+        for p in self.obj.order_list:
             sum += float(p['total'])
             c += p['amount']
 
-        context.update({'num_of_items_in_shca': c, 'user_additional_data': obj,
+        context.update({'num_of_items_in_shca': c, 'user_additional_data': self.obj,
                    'price_one': f'{(sum + 13):.2f}', 'price_two': f'{(sum + 9):.2f}',
                    'first_name': self.request.user.first_name, 'last_name': self.request.user.last_name
                   })
@@ -113,13 +109,8 @@ class Finalize_Order(CreateView):
         if form_class is None:
             form_class = self.get_form_class()
             form_class.user = self.request.user
+            self.obj = form_class.additionaldata = self.request.user.additionaldata
         return form_class(**self.get_form_kwargs())
-
-    def post(self, request, *args, **kwargs):
-        self.object = None
-        return super().post(request, *args, **kwargs)
-
-
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class Person_Page(LoginRequiredMixin, UpdateView):

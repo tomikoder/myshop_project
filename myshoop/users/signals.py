@@ -11,12 +11,6 @@ from copy import copy
 def populate_additional_db(sender, instance, **kwargs):
         AdditionalData(user_id=instance.id).save()
 
-@receiver(order_instance_is_created, sender=UserDataFormOrder)
-def add_initial_data(sender, instance, user, **kwargs):
-        instance.user = user
-        print('A')
-        instance.order_list = copy(user.additionaldata.order_list)
-
 @receiver(pre_save, sender=Orders_Two)
 def add_initial_data_two(sender, instance, **kwargs):
         num = MyShopConf.objects.raw('''update pages_myshopconf set order_num_two = order_num_two + 1
