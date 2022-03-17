@@ -6,4 +6,4 @@ Pillow==8.4.0
 requests==2.27.1
 simplejson==3.17.6
 django-heroku
-
+dj-database-url==0.2.1

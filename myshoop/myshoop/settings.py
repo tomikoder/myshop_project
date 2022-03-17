@@ -12,13 +12,24 @@ Lol Bawię się GIT
 """
 
 from pathlib import Path
+
 import environ, os
 
-env = environ.Env(
-    DEBUG=(bool, False)
-)
+ALLOWED_HOSTS = []
 
-environ.Env.read_env('env.myvariables')
+if 'env.myvariables' in os.listdir():
+    env = environ.Env(DEBUG=(bool))
+    environ.Env.read_env('env.myvariables')
+else: #Set test app in Heroku
+    import dj_database_url
+    env = environ.Env(
+        SECRET_KEY=(str, os.environ['DJANGO_SECRET_KEY']),
+        DATABASE_URL=(str, dj_database_url.config()),
+        DEBUG=(bool, False)
+    )
+    ALLOWED_HOSTS.append('127.0.0.1')
+
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,8 +44,6 @@ SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
