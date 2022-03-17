@@ -7,3 +7,4 @@ requests==2.27.1
 simplejson==3.17.6
 django-heroku
 dj-database-url==0.2.1
+psycopg2==2.8.6
