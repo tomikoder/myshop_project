@@ -1,1 +1,1 @@
-web: gunicorn myshoop.myshoop.wsgi
+web: gunicorn --chdir myshoop myshoop.wsgi --log-file -
