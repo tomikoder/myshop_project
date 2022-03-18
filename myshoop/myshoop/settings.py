@@ -25,9 +25,8 @@ else: #Set test app in Heroku
     env = environ.Env(
         SECRET_KEY=(str, os.environ['DJANGO_SECRET_KEY']),
         DATABASE_URL=(str, dj_database_url.config()),
-        DEBUG=(bool, False)
+        DEBUG=(bool, True)
     )
-    ALLOWED_HOSTS.append('127.0.0.1')
 
 
 
