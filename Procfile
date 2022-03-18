@@ -1,1 +1,1 @@
-web: gunicorn myshoop.wsgi
+web: gunicorn myshoop.myshoop.wsgi
