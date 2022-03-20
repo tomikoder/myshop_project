@@ -27,6 +27,8 @@ else: #Set test app in Heroku
         DATABASE_URL=(str, dj_database_url.config()),
         DEBUG=(bool, True)
     )
+    ALLOWED_HOSTS.append('salty-beyond-25986.herokuapp.com')
+
 
 
 
