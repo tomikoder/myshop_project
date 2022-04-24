@@ -17,20 +17,8 @@ import environ, os
 
 ALLOWED_HOSTS = []
 
-if 'env.myvariables' in os.listdir():
-    env = environ.Env(DEBUG=(bool))
-    environ.Env.read_env('env.myvariables')
-else: #Set test app in Heroku
-    import dj_database_url
-    env = environ.Env(
-        SECRET_KEY=(str, os.environ['DJANGO_SECRET_KEY']),
-        DATABASE_URL=(str, dj_database_url.config()),
-        DEBUG=(bool, True)
-    )
-    ALLOWED_HOSTS.append('salty-beyond-25986.herokuapp.com')
-
-
-
+env = environ.Env(DEBUG=(bool))
+environ.Env.read_env('env.myvariables')
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
