@@ -13,9 +13,8 @@ from django.utils.timezone import now
 class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
     comment_num = models.IntegerField(default=0, null=False)
-    pics_num = models.IntegerField(default=100, null=False)
+    pics_num = models.IntegerField(default=0, null=False)
     order_num = models.IntegerField(default=0)
-    order_num_two = models.IntegerField(default=0)
 
 class Sorted_Items(models.Manager):
     def get_queryset(self):

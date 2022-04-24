@@ -14,7 +14,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     model = CustomUser
     list_display = ['email', 'username',]
     inlines = [
-        ASD,
+       ASD,
     ]
 
 admin.site.register(CustomUser, CustomUserAdmin)

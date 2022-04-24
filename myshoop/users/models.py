@@ -30,7 +30,7 @@ class AdditionalData(models.Model):
     liked_books = models.JSONField(default=dict)
     order_list = models.JSONField(default=list, null=False)
 
-class Orders_Two(models.Model):
+class Orders(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
     number = models.IntegerField()
     payment_method = models.IntegerField(null=False, default='BD', choices=[

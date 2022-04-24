@@ -15,6 +15,9 @@ from PIL import Image
 from django.conf import settings
 
 class Command(BaseCommand):
+    '''Użyj np python manage.py fill_database 100 --sy 2020 --ey 2022, by pobrać przykładowe
+       ksiązki do celów testowych.
+    '''
     help = 'Add books to database'
 
     def add_arguments(self, parser):

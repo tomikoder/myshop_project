@@ -5,7 +5,7 @@ from allauth.account import app_settings
 from allauth.utils import set_form_field_order
 from .custom_validators import validate_sign, validate_length, validate_number
 from django.contrib.auth import get_user_model
-from .models import CustomUser, Orders_Two
+from .models import CustomUser, Orders
 from .custom_signals import order_instance_is_created
 from django.http import HttpResponseRedirect
 from copy import copy
@@ -137,7 +137,7 @@ class UserDataFormOrder(forms.ModelForm):
                                 (2, "W punkcie odbioru")
                                 ]
     class Meta:
-        model = Orders_Two
+        model = Orders
         fields = ['city', 'region', 'address', 'postal_code_two', 'phone_number', 'payment_method', 'delivery_method']
     city = forms.CharField(max_length=20, label='Miejscowość', widget=forms.TextInput(attrs={"class": "form-control"},))
     region = forms.CharField(widget=forms.Select(choices=lista_województw, attrs={"class": "custom-select custom-select-sm"}))

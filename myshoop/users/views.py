@@ -15,7 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from pages.models import Product
 from users.models import AdditionalData
 from pages.views import music_categories, movies_categories, book_categories, others_categories, games_categories
-from .models import Orders_Two
+from .models import Orders
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomSignupView(SignupView):
@@ -76,7 +76,7 @@ class YouShoppingCart(DetailView):
 class Finalize_Order(CreateView):
     template_name = 'finalizeorder.html'
     form_class = UserDataFormOrder
-    model = Orders_Two
+    model = Orders
     success_url = '/'
 
     def get_context_data(self, **kwargs):

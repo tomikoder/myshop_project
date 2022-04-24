@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, pre_save, post_delete
+from django.db.models.signals import post_save, pre_save, post_delete, post_migrate
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.conf import settings
@@ -7,9 +7,10 @@ import os
 from django.core.exceptions import ObjectDoesNotExist
 from .custom_signals import rate_is_updated, book_is_liked, book_is_unliked, book_review_is_created, book_review_is_saved
 from .views import vote_on_book
-from .models import Book, Book_Review, MyShopConf
+from .models import Book, Book_Review, MyShopConf, Product
 from django.db.models import Avg, F
 from django.conf import settings
+from django.apps import apps
 
 size_lg = 352, 500
 size_md = 278, 392
@@ -27,6 +28,7 @@ def content_file_name(filename):
 
 @receiver(user_logged_in)
 def update_shoping_cart(sender, user, request, **kwargs):
+    if user.is_superuser: return
     user_additional_data = user.additionaldata
     if ('order_list' in request.session) and request.session['order_list']:
         for b in request.session['order_list']:
@@ -39,6 +41,10 @@ def update_shoping_cart(sender, user, request, **kwargs):
         user_additional_data.save()
         request.session['order_list'] = []
 
+@receiver(post_migrate, sender=apps.get_app_config('pages'))
+def populate_db_one(sender, **kwargs):
+    MyShopConf.objects.create().save()
+    Product.objects.create(name="books").save()
 
 @receiver(pre_save, sender=Book)
 def add_minipics(sender, instance, **kwargs):
