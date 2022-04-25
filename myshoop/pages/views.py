@@ -23,6 +23,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import connection
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
+from .models import Category
 
 def dictfetchall(cursor):
     columns = [col[0] for col in cursor.description]
@@ -31,12 +32,7 @@ def dictfetchall(cursor):
 
 
 
-
-book_categories =   ['astrofizyka', 'astronomia', 'autobiografia', 'biografia', 'dla dzieci', 'erotyka', 'eseje', 'etyka',
-                     'fantasy', 'filozofia', 'historyczne', 'horror', 'językoznawstwo', 'komiksy', 'kryminał', 'lektury', 'literatura dziecięca',
-                     'literatura', 'młodzieżowa', 'literatura obyczajowa', 'literatura piękna', 'nauka o literaturze',
-                     'naukispołeczne(psychologia)', 'pamiętnik', 'poezja', 'popularnonaukowa', 'poradniki', 'poradniki dla rodziców',
-                     'powieść historyczna', 'przygodowe', 'publicystyka literacka', 'reportaż', 'romans', 'science fiction', 'sensacja', 'socjologia']
+book_categories = Category.objects.all()
 others_categories = ['gry planszowe', 'zabawki', 'zakładki']
 music_categories =  ['elektroniczna', 'jazz', 'klasyczna', 'metal', 'rap & hip-hop', 'regge', 'rock']
 movies_categories = ['animacja', 'anime', 'biografia', 'dla dzieci', 'dokumentalne', 'erotyka', 'fantasy', 'historyczne', 'horror', 'klasyka',

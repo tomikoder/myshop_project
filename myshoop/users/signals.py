@@ -6,10 +6,13 @@ from .adapter import MyDefaultAdapter
 from pages.models import MyShopConf
 from .forms import UserDataFormOrder
 from copy import copy
+from django.contrib.auth import get_user_model
 
-@receiver(user_is_created, sender=MyDefaultAdapter)
+
+@receiver(post_save, sender=get_user_model())
 def populate_additional_db(sender, instance, **kwargs):
         AdditionalData(user_id=instance.id).save()
+
 
 @receiver(pre_save, sender=Orders)
 def add_initial_data_two(sender, instance, **kwargs):
