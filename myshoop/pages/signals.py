@@ -28,7 +28,6 @@ def content_file_name(filename):
 
 @receiver(user_logged_in)
 def update_shoping_cart(sender, user, request, **kwargs):
-    if user.is_superuser: return
     user_additional_data = user.additionaldata
     if ('order_list' in request.session) and request.session['order_list']:
         for b in request.session['order_list']:

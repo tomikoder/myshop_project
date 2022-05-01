@@ -10,16 +10,16 @@ from django.contrib.auth import get_user_model
 
 
 @receiver(post_save, sender=get_user_model())
-def populate_additional_db(sender, instance, **kwargs):
+def populate_additional_db(sender, instance, created, **kwargs):
+    if created == True:
         AdditionalData(user_id=instance.id).save()
-
 
 @receiver(pre_save, sender=Orders)
 def add_initial_data_two(sender, instance, **kwargs):
         num = MyShopConf.objects.raw('''update pages_myshopconf set order_num = order_num + 1
                                           where id = 1
                                           returning id, order_num; 
-                                       ''')[0].order_num
+                                     ''')[0].order_num
         instance.number = num
 
 @receiver(post_save, sender=Orders)
@@ -27,6 +27,7 @@ def final_tasks(sender, instance, **kwargs):
         additional_data = instance.user.additionaldata
         additional_data.order_list = []
         additional_data.save()
+
 
 
 

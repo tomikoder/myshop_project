@@ -44,7 +44,7 @@ class Command(BaseCommand):
         authors = list(Author.objects.all())
         categories = list(Category.objects.all())
         publishers = list(Publisher.objects.all())
-        product = Product.objects.all()[0]
+        product = Product.objects.get(name='books')
         link1 = 'https://lubimyczytac.pl'
         link2 = 'https://lubimyczytac.pl/top100?page=%s&listId=listTop100&month=%s&year=%s&paginatorType=Standard'
         books_in_db = set()
@@ -164,6 +164,7 @@ class Command(BaseCommand):
                     else:
                         new_category = Category.objects.create(name=b_c)
                         new_category.save()
+                        product.categories.add(new_category)
                         categories.append(new_category)
                         new_book.category.add(new_category)
                 counter += 1

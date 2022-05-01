@@ -32,7 +32,7 @@ def dictfetchall(cursor):
 
 
 
-book_categories = Category.objects.all()
+book_categories = Product.objects.get(name='books').categories.all()
 others_categories = ['gry planszowe', 'zabawki', 'zakładki']
 music_categories =  ['elektroniczna', 'jazz', 'klasyczna', 'metal', 'rap & hip-hop', 'regge', 'rock']
 movies_categories = ['animacja', 'anime', 'biografia', 'dla dzieci', 'dokumentalne', 'erotyka', 'fantasy', 'historyczne', 'horror', 'klasyka',
