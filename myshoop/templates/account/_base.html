@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %} Title {% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/all.css'  %}">
+    <link rel="stylesheet" href="{% static 'css/v4-shims.min.css'  %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+    {% block additional_css %}{% endblock additional_css %}
+</head>
+<style>
+.checked {
+  color: orange;
+}
+</style>
+<body>
+<div class="container">
+    <nav class="navbar navbar-expand bg-light navbar-light ">
+       <span class="navbar-brand"><a href="{% url 'home' %}"><img class="logo1" src="{% static 'images/logo.png' %}"></a></span>
+        <span class="navbar-brand mt-2"><h3 class="text-primary"><a href="{% url 'home' %}" class="text-decoration-none text-reset ">MyShop.com</a></h3></span>
+        <div class="" style="width: 48%;">
+            <form action="/search/" class="form-inline mt-2 ml-2" method="GET">
+                <input class="form-control" name="query" type="search" placeholder="Szukaj" style="width: 75%;">
+                <button id="search" class="btn btn-success" type="submit">
+                    Szukaj
+                </button>
+            </form>
+        </div>
+
+        <!-- Kwestie związane z logowaniem -->
+
+        <div id="cover-spin"></div>
+
+        <div class="block text-primary pt-2 mr-auto">
+            <div class="pl-5 ml-1 mb">
+                <i class="fas fa-user-circle" style="font-size: 45px; color: Dodgerblue;"></i>
+            </div>
+            <p class="mb-4 font-weight-bold" style="font-size: 13px;">
+            {% if user.is_authenticated %}
+            Witaj <a href="{% url 'person_page' %}">{{ user.username }}</a> | <a href="{% url 'account_logout' %}">Wyloguj się</a>
+            {% else %}
+            <a class="font-weight-bold" href="{% url 'account_signup' %}" id="signup_modal" data-toggle="modal" data-target="#signupmodal">Rejestracja</a> |
+            <a id="logowanie" class="font-weight-bold " href="{% url 'account_login' %}" id="login_modal" data-toggle="modal" data-target="#loginmodal">Logowanie</a>
+            </p>
+            {% endif %}
+        </div>
+        <a href="{% url 'shopping_cart' %}">
+            <div class="block text-primary mb-2">
+                <i class="fas fa-shopping-cart" style="font-size: 40px; color: Dodgerblue;"></i>
+                <br>
+                <strong id="shc">Koszyk <span>({{ num_of_items_in_shca }})</span></strong>
+            </div>
+        </a>
+    </nav>
+
+    <nav class="btn-group nav justify-content-center bg-light btn-group-sm">
+       <a class="nav-link btn btn-primary font-weight-bold" href="{% url 'new_books' %}">Nowości</a>
+       <a class="nav-link btn btn-primary font-weight-bold" href="{% url 'prom' %}">Promocje</a>
+       <a class="nav-link btn btn-primary font-weight-bold" href="{% url 'the_best' %}">Betsellery</a>
+    </nav>
+
+    <div class="modal" id="loginmodal">
+    {% include 'account/login.html' %}
+    </div>
+
+    <div class="modal" id="signupmodal">
+    {% include 'account/signup.html' %}
+    </div>
+
+    {% include 'account/alerts.html' %}
+    {% include 'modals.html' %}
+    <div class="row">
+
+        {% include 'menu2.html' %}
+
+        <div class="col">
+        {% block content %}
+        {% endblock content %}
+        </div>
+    </div>
+</div>
+<div class="container">
+    <footer class="pt-4 my-md-5 pt-md-5 text-center">
+        <h4>MyShop.com copyright 2021</h4>
+    </footer>
+</div>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="{% static 'js/jquery-3.6.0.min.js'  %}"></script>
+<script src="{% static 'js/js.cookie.js' %}"></script>
+<script src="{% static 'js/mainscript.js' %}"></script>
+{% block script %}{% endblock script %}
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js" integrity="sha384-1CmrxMRARb6aLqgBO7yyAxTOQE2AKb9GfXnEo760AUcUmFx3ibVJJAzGytlQcNXd" crossorigin="anonymous"></script>
+
+</body>
+</html>
