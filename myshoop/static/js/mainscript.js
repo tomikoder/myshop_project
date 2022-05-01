@@ -145,7 +145,6 @@ $(function() {
 	});
 
 	$('#signupform').on('submit', function(event) {
-	    alert("A");
 	    event.preventDefault();
 	    ai = $('#signupform').serialize();
 	    mycookie = Cookies.get("csrftoken");
