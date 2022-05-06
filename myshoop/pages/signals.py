@@ -40,11 +40,6 @@ def update_shoping_cart(sender, user, request, **kwargs):
         user_additional_data.save()
         request.session['order_list'] = []
 
-@receiver(post_migrate, sender=apps.get_app_config('pages'))
-def populate_db_one(sender, **kwargs):
-    MyShopConf.objects.create().save()
-    Product.objects.create(name="books").save()
-
 @receiver(pre_save, sender=Book)
 def add_minipics(sender, instance, **kwargs):
     if (kwargs['update_fields'] is not None and 'cover_img' in kwargs['update_fields']) or (hasattr(instance, 'is_created') and instance.is_created):

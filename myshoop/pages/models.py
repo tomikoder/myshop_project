@@ -8,7 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now
-
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
@@ -98,11 +99,14 @@ class Book(models.Model):
     rate = models.IntegerField(default=0)
     num_of_likes = models.IntegerField(default=0)
     num_of_rates = models.IntegerField(default=0)
+    vector_column = SearchVectorField(null=True)
 
     class Meta:
         indexes = [
             models.Index(fields=['title']),
+            GinIndex(fields=["vector_column"])
         ]
+
     def serialize(self):
         txt = ''
         for a in self.author.all():
@@ -211,7 +215,7 @@ class Book_Review(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'book'], name='unique_review')]
-    user = models.ForeignKey(get_user_model(), on_delete=models.PROTECT)
+    user = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, null=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, editable=False)
     date = models.DateTimeField(auto_now=False, auto_now_add=True, null=False, editable=True)
     subject = models.TextField(max_length=30, blank=True, null=False, default='')
@@ -259,8 +263,8 @@ class Book_Rate(models.Model):
         three = 3
         four  = 4
         five  = 5
-    user = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, editable=False)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, editable=False)
+    user = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, editable=False, null=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, editable=False, null=True)
     rate = models.IntegerField(choices=Suit.choices)
     rev = models.OneToOneField(Book_Review, null=True, on_delete=models.SET_NULL)
 

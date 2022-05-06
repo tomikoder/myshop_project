@@ -14,7 +14,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from pages.models import Product
 from users.models import AdditionalData
-from pages.views import music_categories, movies_categories, book_categories, others_categories, games_categories
+from pages.views import music_categories, movies_categories, others_categories, games_categories
 from .models import Orders
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -44,7 +44,7 @@ class YouShoppingCart(DetailView):
         context['login_form'] = login_form
         context['music_categories'] = music_categories
         context['movies_categories'] = movies_categories
-        context['book_categories'] =   book_categories
+        context['book_categories'] =   Product.objects.get(name='books').categories.all()
         context['others_categories'] = others_categories
         context['games_categories'] = games_categories
         return context

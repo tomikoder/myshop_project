@@ -32,7 +32,6 @@ def dictfetchall(cursor):
 
 
 
-book_categories = Product.objects.get(name='books').categories.all()
 others_categories = ['gry planszowe', 'zabawki', 'zakładki']
 music_categories =  ['elektroniczna', 'jazz', 'klasyczna', 'metal', 'rap & hip-hop', 'regge', 'rock']
 movies_categories = ['animacja', 'anime', 'biografia', 'dla dzieci', 'dokumentalne', 'erotyka', 'fantasy', 'historyczne', 'horror', 'klasyka',
@@ -49,7 +48,8 @@ class HomePageView(TemplateView):
         context['signup_form'] = signup_form
         context['login_form'] = login_form
         context['num_of_items_form'] = number_of_items
-        context['book_categories'] =   book_categories
+        context['book_categories'] = Product.objects.get(name='books').categories.all()
+
         context['others_categories'] = others_categories
         context['music_categories'] = music_categories
         context['movies_categories'] = movies_categories
@@ -119,7 +119,7 @@ class RegulaminPageView(TemplateView):
         context['login_form'] = login_form
         context['music_categories'] = music_categories
         context['movies_categories'] = movies_categories
-        context['book_categories'] =   book_categories
+        context['book_categories'] =   Product.objects.get(name='books').categories.all()
         context['others_categories'] = others_categories
         context['games_categories'] = games_categories
         return context
@@ -138,7 +138,7 @@ class BookDetailPageView(DetailView):
         context['comment_form'] = comment_form
         context['music_categories'] = music_categories
         context['movies_categories'] = movies_categories
-        context['book_categories'] =   book_categories
+        context['book_categories'] =   Product.objects.get(name='books').categories.all()
         context['others_categories'] = others_categories
         context['games_categories'] = games_categories
         user = self.request.user
@@ -265,7 +265,7 @@ class New_Books(ListView):
         context['num_of_items_form'] = number_of_items
         context['music_categories'] = music_categories
         context['movies_categories'] = movies_categories
-        context['book_categories'] =   book_categories
+        context['book_categories'] =   Product.objects.get(name='books').categories.all()
         context['others_categories'] = others_categories
         context['games_categories'] = games_categories
 
