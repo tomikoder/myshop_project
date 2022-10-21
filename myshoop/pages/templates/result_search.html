@@ -9,6 +9,7 @@
 {% block content %}
     {% return_data_three user user_additional_data books categories as data %}
     {{ data|json_script:"data_id" }}
+    {{ query }}
     <div class="d-flex flex-row" style="">
         {% for p in page_obj|slice:":4" %}
         {% if p %}
@@ -204,21 +205,21 @@
     <ul class="pagination">
     {% if page_obj.number == 1 %}
         <li class="page-item" style=""><a class="page-link" href="">Poprzednia</a></li>
-        <li class="active page-item"><a class="page-link" href="?page=1&cat={{ categories_url }}">1</a></li>
+        <li class="active page-item"><a class="page-link" href="?page=1&cat={{ categories_url }}&query={{ query }}">1</a></li>
         {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page=2&cat={{ categories_url }}">2</a></li>
+        <li class="page-item"><a class="page-link" href="?page=2&cat={{ categories_url }}&query={{ query }}">2</a></li>
         {% if paginator.num_pages >= 3 %}
-        <li class="page-item"><a class="page-link" href="?page=3&cat={{ categories_url }}">3</a></li>
+        <li class="page-item"><a class="page-link" href="?page=3&cat={{ categories_url }}&query={{ query }}">3</a></li>
         {% endif %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&cat={{ categories_url }}">Następna</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&cat={{ categories_url }}&query={{ query }}">Następna</a></li>
         {% endif %}
     {% else %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&cat={{ categories_url }}&">Poprzednia</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&cat={{ categories_url }}&">{{ page_obj.previous_page_number }}</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&cat={{ categories_url }}&query={{ query }}">Poprzednia</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&cat={{ categories_url }}&query={{ query }}">{{ page_obj.previous_page_number }}</a></li>
         <li class="active page-item"><a class="page-link" href="">{{ page_obj.number }}</a></li>
         {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&cat={{ categories_url }}&">{{ page_obj.next_page_number }}</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&cat={{ categories_url }}&">Next</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&cat={{ categories_url }}&query={{ query }}">{{ page_obj.next_page_number }}</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&cat={{ categories_url }}&query={{ query }}">Next</a></li>
         {% else %}
         <li class="page-item"><a class="page-link" href="">Next</a></li>
         {% endif %}

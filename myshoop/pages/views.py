@@ -367,22 +367,12 @@ class Search_Book(New_Books):
     def get_args_to_query(self):
         return (self.request.GET['query'] + '%', '%' + self.request.GET['query'] + '%', self.limit)
 
-class Search_Book_2(New_Books):
-    template_name = 'result_search.html'
-    limit = None
-    sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
-                                  FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
-                                                       INNER JOIN pages_author AS a ON a.id = ba.author_id
-                                  %s 
-                                  GROUP BY b.id
-                                  LIMIT %s)
-                                  SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
-                                  FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
-                 '''
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET['query']
+        return context
 
-    def get_args_to_query(self):
-        terms = self.request.GET['query'].split()
-        txt = "WHERE b.title = ILIKE %s OR a.name = ILIKE "
+
 
 
 
