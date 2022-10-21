@@ -26,6 +26,7 @@ class Command(BaseCommand):
         parser.add_argument('--ey', default=2023, type=int, help='End year')       #end_year
 
     def update_register(self, year, month, page, number, counter, stop=False):
+        '''Log pobranych książek'''
         file = open('fill_database_log.txt', 'a')
         text = 'year-%s month-%s page-%s counter_start-%s counter_stop-%s %s\n' % (year, month, page, number, counter, datetime.now().strftime('%Y-%m-%d %X'))
         if stop == True:

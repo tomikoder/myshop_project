@@ -1,8 +1,10 @@
 {% extends '_base.html' %}
 
-{% block title %}
-regulamin
-{% endblock title %}
+{% load static %}
+
+{% load tag_library %}
+
+{% block title %}regulamin{% endblock title %}
 
 {% block links %}
             <a class="font-weight-bold" href="{% url 'books_account_signup' %}" id="signup_modal" data-toggle="modal" data-target="#signupmodal">Rejestracja</a> |
@@ -11,5 +13,19 @@ regulamin
 
 
 {% block content %}
-    <h1>Blablabla</h1>
+    {% return_data_four user  as data %}
+    {{ data|json_script:"data_id" }}
+
+    <br>
+    <h1>Ciastka</h1>
+    <p>Strona używa ciastek aby niezalogowany użytkownik mógł korzystać z możliwości kup, jak i również aby zachować sesję dla zalogowanego użytkownika.</p>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
 {% endblock content %}

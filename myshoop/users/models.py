@@ -27,6 +27,7 @@ class CustomUser(AbstractUser):
 
 class AdditionalData(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+    accept_cookies = models.BooleanField(default=False)
     liked_books = models.JSONField(default=dict)
     order_list = models.JSONField(default=list, null=False)
 

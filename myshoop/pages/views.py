@@ -56,6 +56,7 @@ class HomePageView(TemplateView):
         context['games_categories'] = games_categories
 
 
+        #Pobieram ksiażki do wyświetlenia na głównej.
         with connection.cursor() as cursor:
             cursor.execute('''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
                                             FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
@@ -92,6 +93,7 @@ class HomePageView(TemplateView):
                            ''')
             context['prom']  = dictfetchall(cursor)
         user = self.request.user
+        #Uwstawienia koszyka zakupów dla zalogowanego użytkownika i nie zalagowanego.
         if user.is_authenticated:
             context['user_additional_data'] = user.additionaldata
             c = 0
@@ -99,7 +101,7 @@ class HomePageView(TemplateView):
                 c+= i['amount']
             context['num_of_items_in_shca'] = c
         else:
-            if not 'order_list' in self.request.session:
+            if not 'order_list' in self.request.session:  #Używam ciasteczek by przetrrzymywać dane o koszyku.
                 self.request.session['order_list'] = []
                 context['num_of_items_in_shca'] = 0
             else:
@@ -109,7 +111,6 @@ class HomePageView(TemplateView):
                 context['num_of_items_in_shca'] = c
         return context
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
 class RegulaminPageView(TemplateView):
     template_name = 'regulamin.html'
 
@@ -122,6 +123,23 @@ class RegulaminPageView(TemplateView):
         context['book_categories'] =   Product.objects.get(name='books').categories.all()
         context['others_categories'] = others_categories
         context['games_categories'] = games_categories
+        user = self.request.user
+        if user.is_authenticated:
+            context['user_additional_data'] = user.additionaldata
+            c = 0
+            for i in context['user_additional_data'].order_list:
+                c+= i['amount']
+            context['num_of_items_in_shca'] = c
+        else:
+            if not 'order_list' in self.request.session:  #Używam ciasteczek by przetrrzymywać dane o koszyku.
+                self.request.session['order_list'] = []
+                context['num_of_items_in_shca'] = 0
+            else:
+                c = 0
+                for i in self.request.session['order_list']:
+                    c+= i['amount']
+                context['num_of_items_in_shca'] = c
+
         return context
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -143,7 +161,7 @@ class BookDetailPageView(DetailView):
         context['games_categories'] = games_categories
         user = self.request.user
         if user.is_authenticated:
-            your_rate =  Book_Rate.objects.filter(book=self.object, user=user)
+            your_rate =  Book_Rate.objects.filter(book=self.object, user=user) #Ocena produktu prez użytkownika
             if your_rate:
                 context['your_rate'] = your_rate.get()
             else:
@@ -151,6 +169,7 @@ class BookDetailPageView(DetailView):
         else:
             context['your_rate'] = None
         context['num_of_votes'] = self.object.num_of_rates
+        #Sprowadzam wszystkie recenzje
         context['book_reviews'] = list(Book_Review.objects.raw('''SELECT br.*, bra.rate, ROW_NUMBER() OVER() - 1 AS index 
                                                                   FROM pages_book_review AS br INNER JOIN pages_book_rate AS bra ON br.id = bra.rev_id
                                                                   WHERE br.book_id = %s
@@ -227,6 +246,7 @@ class BookDetailPageView(DetailView):
         return context
 
     def get_object(self):
+        #Pobieram dane o produkcie ze wszystkimi potrzebnymi danymi.
         indicator = self.kwargs.get("link")
         queryset = list(Book.objects.raw('''WITH book AS (SELECT b.*, ARRAY_AGG(DISTINCT  a.name) AS authors, ARRAY_AGG(DISTINCT  c.name) AS categories  
                                                           FROM pages_book AS b INNER JOIN pages_book_category AS bc ON b.id = bc.book_id
@@ -243,6 +263,9 @@ class BookDetailPageView(DetailView):
         return queryset[0]
 
 class New_Books(ListView):
+    '''
+    Strona, która wyświetla najnowsze książi.
+    '''
     template_name = 'new.html'
     context_object_name = 'books'
     paginate_by = 12
@@ -344,6 +367,25 @@ class Search_Book(New_Books):
     def get_args_to_query(self):
         return (self.request.GET['query'] + '%', '%' + self.request.GET['query'] + '%', self.limit)
 
+class Search_Book_2(New_Books):
+    template_name = 'result_search.html'
+    limit = None
+    sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
+                                  FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
+                                                       INNER JOIN pages_author AS a ON a.id = ba.author_id
+                                  %s 
+                                  GROUP BY b.id
+                                  LIMIT %s)
+                                  SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
+                                  FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
+                 '''
+
+    def get_args_to_query(self):
+        terms = self.request.GET['query'].split()
+        txt = "WHERE b.title = ILIKE %s OR a.name = ILIKE "
+
+
+
 class Specific_Book_Categories(New_Books):
     template_name = 'category.html'
     limit = None
@@ -411,7 +453,6 @@ def vote_on_book(request):
             new_rate.save()
             data_to_update = rate_is_updated.send(sender=vote_on_book, book_pk=data['book_pk'], Book_Rate=Book_Rate, created=False)[0][1]
             return JsonResponse(data={"new_rate": data_to_update}, status=201)
-    else:
         return JsonResponse(data={"message": "Błąd w przetwarzaniu danych."}, status=500)
 
 def add_like_to_book(request):

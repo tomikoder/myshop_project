@@ -1,8 +1,17 @@
 {% extends '_base.html' %}
 
+{% load static %}
+
+{% load tag_library %}
+
+
 {% block title %} Twoja strona {% endblock title %}
 
 {% block content %}
+{% return_data_four user  as data %}
+{{ data|json_script:"data_id" }}
+
+
 <h1>Twoje Dane</h1>
 <form method="POST" id="signupform" enctype="multipart/form-data" style="width: 50%;">{% csrf_token %}
     <div class="form-group">

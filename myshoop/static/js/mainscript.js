@@ -1,6 +1,7 @@
 $(function() {
     var mycookie, ai, elem, elem_two, elem_three, datatosend;
 
+
     var your_data = JSON.parse($("#data_id").text());
 
     if ('user_id' in your_data) {
@@ -26,6 +27,7 @@ $(function() {
             curr_menu_li.next("ul").toggle();
         }
     }
+
 
 	$("#menu li.category").click(function(event) {
 		event.preventDefault();
@@ -53,6 +55,8 @@ $(function() {
 		}
 	});
 
+    //Ustawiam stoper do zaznaczania kategori w menu. Gdy przed upływem czasu zaznaczysz jakiś inny item
+    //odmierzanie zacznie się od nowa
 	function startTime() {
 	    now = new Date();
         if (now.getTime() >= time.getTime()) {
@@ -192,11 +196,15 @@ $(function() {
 	    });
 	});
 
+	block = 0;
+
     $(".buy").click(function(event) {
         event.preventDefault();
         elem_three = $(this);
         $("#quanity").modal("show");
         $("#ok").click(function(event){
+            if (block) return;
+            block = 1;
             elem = $("#shc span");
             elem_two = $("#number");
             elem.text('(' + (Number(elem.text().slice(1, -1)) + Number(elem_two.val())) + ')');
@@ -231,6 +239,7 @@ $(function() {
 	                $("#quanity").modal("hide");
 	                elem_two.val("1");
 	                $('#addtoshopingcard').modal('show');
+	                block = 0;
 	                }
             });
         })

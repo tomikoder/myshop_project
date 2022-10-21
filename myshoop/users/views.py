@@ -120,6 +120,18 @@ class Person_Page(LoginRequiredMixin, UpdateView):
     raise_exception = True
     form_class = UserDataForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['signup_form'] = signup_form
+        context['login_form'] = login_form
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['book_categories'] =   Product.objects.get(name='books').categories.all()
+        context['others_categories'] = others_categories
+        context['games_categories'] = games_categories
+        return context
+
+
     def get_object(self):
         user_additional_data = self.request.user.additionaldata
         self.extra_context = {'num_of_items_in_shca': len(user_additional_data.order_list)}

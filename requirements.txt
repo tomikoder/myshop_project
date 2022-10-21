@@ -16,3 +16,4 @@ pip==21.0.1
 simplejson=3.17.6
 beautifulsoup4
 lxml
+elasticsearch

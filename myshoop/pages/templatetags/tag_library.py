@@ -60,6 +60,15 @@ def return_data_three(user, user_additional_data, other_books, categories):
     else:
         return {'other_books': json.dumps(other_books), 'categories': json.dumps(categories)}
 
+@register.simple_tag
+def return_data_four(user):
+    if user.is_authenticated:
+        return {'user_id': user.id}
+    else:
+        return {}
+
+
+
 
 
 

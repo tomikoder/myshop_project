@@ -1,5 +1,5 @@
 $(function() {
-    var stars, sib, datatosend, number_of_votes, elem, elem_two, elem_three, elem_four, new_rate, actual_val, first_vote, index, rev_like;
+    var stars, sib, datatosend, number_of_votes, elem, elem_two, elem_three, elem_four, new_rate, actual_val, first_vote, index, rev_like, one_click;
     var voted = 0;
     var update_vote = 0;
     var your_data = JSON.parse($("#data_id").text());
@@ -106,7 +106,12 @@ $(function() {
             }
         });
 
-        $(this).click(function(){
+        block = 0;
+
+
+        $(this).on('click', function(){
+            if (!block) block = 1;
+            else return;
             $(this).css('cursor', 'default');
             datatosend = {};
             voted = 1;
@@ -141,11 +146,13 @@ $(function() {
                     }
                 },
 	            error:      function (xhr, ajaxOptions, thrownError) {
+	                block = 0;
 	                $("#err").show();
 	            },
 	            complete:   function(jqXHR, textStatus ) {
 	                update_vote = 0;
 	                $("#change").show();
+	                block = 0;
 	            }
             });
 	    });
@@ -163,7 +170,14 @@ $(function() {
         event.preventDefault();
     });
 
+    block_two = 0;
+
 	$("#like_book").click(function(event) {
+	    if (block_two) {
+	        event.preventDefault();
+            return;
+	    }
+	    block_two = 1;
 	    event.preventDefault();
 	    datatosend = {};
 	    mycookie = Cookies.get("csrftoken");
@@ -191,6 +205,7 @@ $(function() {
 	            error:      function (xhr, ajaxOptions, thrownError) {
 	            },
 	            complete:   function(jqXHR, textStatus ) {
+	                block_two = 0;
 	            }
             });
         } else {
@@ -212,7 +227,8 @@ $(function() {
 	            error:      function (xhr, ajaxOptions, thrownError) {
 	            },
 	            complete:   function(jqXHR, textStatus ) {
-	            }
+	                block_two = 0;
+	            },
             });
         }
 	});
@@ -393,6 +409,8 @@ $(function() {
 
     var curr_index = 0;
 
+
+    //Przewijam w karuzeli kolejne ksiązki
     $("#pl").click(function(event) {
         event.preventDefault();
         if (!curr_index == 0) {

@@ -8,8 +8,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now
-from django.contrib.postgres.search import SearchVectorField
-from django.contrib.postgres.indexes import GinIndex
 
 class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
@@ -99,12 +97,10 @@ class Book(models.Model):
     rate = models.IntegerField(default=0)
     num_of_likes = models.IntegerField(default=0)
     num_of_rates = models.IntegerField(default=0)
-    vector_column = SearchVectorField(null=True)
 
     class Meta:
         indexes = [
             models.Index(fields=['title']),
-            GinIndex(fields=["vector_column"])
         ]
 
     def serialize(self):
@@ -143,6 +139,9 @@ class Book(models.Model):
         else:
             return self.title
 
+    def get_all_authors(self):
+        return ', '.join([a.name for a in self.author.all()])
+
     def display_authors(self):
         authors = self.author.all()
         if len(authors) != 1:
@@ -172,6 +171,13 @@ class Book(models.Model):
         else:
             text = '<li class="list-group-item">Autor: ' + self.authors[0]
             return text
+
+    def list_of_authors_2(self):
+        txt = ""
+        for a in self.author.all():
+            txt += a.name + " "
+        txt.rstrip()
+        return txt
 
     def list_of_genres(self):
         if self.category.count() > 1:
