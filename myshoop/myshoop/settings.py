@@ -17,6 +17,8 @@ import environ, os
 
 ALLOWED_HOSTS = []
 
+ENVIRONMENT = os.environ.get('ENVIRONMENT', default='development')
+
 env = environ.Env(DEBUG=(bool))
 environ.Env.read_env('env.myvariables')
 
@@ -147,7 +149,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # allauth conf
 SITE_ID = 1
-EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND= env('EMAIL_BACKEND')
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'home'
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -162,3 +164,10 @@ ACCOUNT_FORMS = {
     'signup': 'users.forms.CustomSignupForm',
 }
 ACCOUNT_ADAPTER = 'users.adapter.MyDefaultAdapter'
+
+if ENVIRONMENT == 'production':
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 314536000
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True

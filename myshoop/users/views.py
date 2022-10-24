@@ -19,6 +19,7 @@ from .models import Orders
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomSignupView(SignupView):
+    http_method_names = ['post', 'put']
     context_object_name = 'signup_form'
     form_class = signup_form
     success_url = reverse_lazy('home')
@@ -27,6 +28,7 @@ class CustomSignupView(SignupView):
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomLoginView(LoginView):
+    http_method_names = ['post', 'put']
     context_object_name = 'login_form'
     form_class = login_form
     success_url = reverse_lazy('home')

@@ -5,15 +5,11 @@ django-environ==0.4.5
 Pillow==8.4.0
 requests==2.27.1
 simplejson==3.17.6
-django-heroku
 dj-database-url==0.2.1
 psycopg2==2.8.6
-gunicorn==20.1.0
-django_crispy_forms==1.11.0-py3
 django_environ==0.4.5
 psycopg2==2.8.6
 pip==21.0.1
-simplejson=3.17.6
+simplejson==3.17.6
 beautifulsoup4
 lxml
-elasticsearch
