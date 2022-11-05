@@ -1,5 +1,12 @@
 {% extends '_base.html' %}
 
+{% load static %}
+
+{% load tag_library %}
+
+{% block title %} Potwierdzić email {% endblock title %}
+
+
 {% load i18n %}
 {% load account %}
 
@@ -7,6 +14,9 @@
 
 
 {% block content %}
+            {% return_data_two user user_additional_data new best prom as data %}
+            {{ data|json_script:"data_id" }}
+
 <h1>{% trans "Confirm E-mail Address" %}</h1>
 
 {% if confirmation %}

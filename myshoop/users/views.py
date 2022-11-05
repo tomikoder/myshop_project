@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from allauth.account.views import SignupView, LoginView
+from allauth.account.views import SignupView, LoginView, ConfirmEmailView
 from .forms import CustomSignupForm as signup_form, CustomLoginForm as login_form, DeliveryAddress, UserDataForm, UserDataFormOrder
 from allauth.account.adapter import get_adapter
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
@@ -16,6 +16,7 @@ from pages.models import Product
 from users.models import AdditionalData
 from pages.views import music_categories, movies_categories, others_categories, games_categories
 from .models import Orders
+
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomSignupView(SignupView):
@@ -34,12 +35,7 @@ class CustomLoginView(LoginView):
     success_url = reverse_lazy('home')
     success_message = 'Witamy ma MyShop.com !'
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class YouShoppingCart(DetailView):
-    template_name = 'shoppingcart.html'
-    model = AdditionalData
-    context_object_name = 'products_list'
-
+class Custom_DetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['signup_form'] = signup_form
@@ -49,7 +45,37 @@ class YouShoppingCart(DetailView):
         context['book_categories'] =   Product.objects.get(name='books').categories.all()
         context['others_categories'] = others_categories
         context['games_categories'] = games_categories
+        user = self.request.user
+        if user.is_authenticated:
+            context['user_additional_data'] = user.additionaldata
+            c = 0
+            for i in context['user_additional_data'].order_list:
+                c+= i['amount']
+            context['num_of_items_in_shca'] = c
+        else:
+            if not 'order_list' in self.request.session:  #Używam ciasteczek by przetrrzymywać dane o koszyku.
+                self.request.session['order_list'] = []
+                context['num_of_items_in_shca'] = 0
+            else:
+                c = 0
+                for i in self.request.session['order_list']:
+                    c+= i['amount']
+                context['num_of_items_in_shca'] = c
         return context
+
+
+class CustomMailConform(ConfirmEmailView, Custom_DetailView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context = Custom_DetailView.get_context_data(self, **kwargs)
+        return context
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class YouShoppingCart(DetailView):
+    template_name = 'shoppingcart.html'
+    model = AdditionalData
+    context_object_name = 'products_list'
 
     def get_object(self):
         if self.request.user.is_authenticated:

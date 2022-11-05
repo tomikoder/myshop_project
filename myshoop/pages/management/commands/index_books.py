@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 from pages.models import Book
-from elasticsearch import Elasticsearch, client
+#from elasticsearch import Elasticsearch, client
 
-
+'''
 class Command(BaseCommand):
     help = 'create index'
 
@@ -41,6 +41,6 @@ class Command(BaseCommand):
                             "authors": b.list_of_authors_2(),
                             "description": b.description
                             })
-
+'''
 
 

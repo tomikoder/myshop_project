@@ -38,24 +38,73 @@ movies_categories = ['animacja', 'anime', 'biografia', 'dla dzieci', 'dokumental
                      'komedie', 'kryminał', 'przygodowe', 'romans', 'science fiction', 'sensacja', 'seriale', 'thriller']
 games_categories =  ['Nintendo', 'PC', 'Playstation', 'Xbox']
 
-
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class HomePageView(TemplateView):
-    template_name = 'home.html'
-
+class Custom_TemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['signup_form'] = signup_form
         context['login_form'] = login_form
         context['num_of_items_form'] = number_of_items
         context['book_categories'] = Product.objects.get(name='books').categories.all()
-
         context['others_categories'] = others_categories
         context['music_categories'] = music_categories
         context['movies_categories'] = movies_categories
         context['games_categories'] = games_categories
+        user = self.request.user
+        #Uwstawienia koszyka zakupów dla zalogowanego użytkownika i nie zalagowanego.
+        if user.is_authenticated:
+            context['user_additional_data'] = user.additionaldata
+            c = 0
+            for i in context['user_additional_data'].order_list:
+                c+= i['amount']
+            context['num_of_items_in_shca'] = c
+        else:
+            if not 'order_list' in self.request.session:  #Używam ciasteczek by przetrrzymywać dane o koszyku.
+                self.request.session['order_list'] = []
+                context['num_of_items_in_shca'] = 0
+            else:
+                c = 0
+                for i in self.request.session['order_list']:
+                    c+= i['amount']
+                context['num_of_items_in_shca'] = c
+        return context
+
+class Custom_ListView(ListView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['signup_form'] = signup_form
+        context['login_form'] = login_form
+        context['num_of_items_form'] = number_of_items
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['book_categories'] = Product.objects.get(name='books').categories.all()
+        context['others_categories'] = others_categories
+        context['games_categories'] = games_categories
+
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            context['user_additional_data'] = user.additionaldata
+            c = 0
+            for i in context['user_additional_data'].order_list:
+                c+= i['amount']
+            context['num_of_items_in_shca'] = c
+        else:
+            if not 'order_list' in self.request.session:
+                self.request.session['order_list'] = []
+                context['num_of_items_in_shca'] = 0
+            else:
+                c = 0
+                for i in self.request.session['order_list']:
+                    c+= i['amount']
+                context['num_of_items_in_shca'] = c
+        return context
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class HomePageView(Custom_TemplateView):
+    template_name = 'home.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         #Pobieram ksiażki do wyświetlenia na głównej.
         with connection.cursor() as cursor:
             cursor.execute('''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
@@ -92,55 +141,10 @@ class HomePageView(TemplateView):
                                             FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                                                                                               
                            ''')
             context['prom']  = dictfetchall(cursor)
-        user = self.request.user
-        #Uwstawienia koszyka zakupów dla zalogowanego użytkownika i nie zalagowanego.
-        if user.is_authenticated:
-            context['user_additional_data'] = user.additionaldata
-            c = 0
-            for i in context['user_additional_data'].order_list:
-                c+= i['amount']
-            context['num_of_items_in_shca'] = c
-        else:
-            if not 'order_list' in self.request.session:  #Używam ciasteczek by przetrrzymywać dane o koszyku.
-                self.request.session['order_list'] = []
-                context['num_of_items_in_shca'] = 0
-            else:
-                c = 0
-                for i in self.request.session['order_list']:
-                    c+= i['amount']
-                context['num_of_items_in_shca'] = c
         return context
 
-class RegulaminPageView(TemplateView):
+class RegulaminPageView(Custom_TemplateView):
     template_name = 'regulamin.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['signup_form'] = signup_form
-        context['login_form'] = login_form
-        context['music_categories'] = music_categories
-        context['movies_categories'] = movies_categories
-        context['book_categories'] =   Product.objects.get(name='books').categories.all()
-        context['others_categories'] = others_categories
-        context['games_categories'] = games_categories
-        user = self.request.user
-        if user.is_authenticated:
-            context['user_additional_data'] = user.additionaldata
-            c = 0
-            for i in context['user_additional_data'].order_list:
-                c+= i['amount']
-            context['num_of_items_in_shca'] = c
-        else:
-            if not 'order_list' in self.request.session:  #Używam ciasteczek by przetrrzymywać dane o koszyku.
-                self.request.session['order_list'] = []
-                context['num_of_items_in_shca'] = 0
-            else:
-                c = 0
-                for i in self.request.session['order_list']:
-                    c+= i['amount']
-                context['num_of_items_in_shca'] = c
-
-        return context
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class BookDetailPageView(DetailView):
@@ -150,22 +154,11 @@ class BookDetailPageView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['signup_form'] = signup_form
-        context['num_of_items_form'] = number_of_items
-        context['login_form'] = login_form
-        context['comment_form'] = comment_form
-        context['music_categories'] = music_categories
-        context['movies_categories'] = movies_categories
-        context['book_categories'] =   Product.objects.get(name='books').categories.all()
-        context['others_categories'] = others_categories
-        context['games_categories'] = games_categories
         user = self.request.user
         if user.is_authenticated:
             your_rate =  Book_Rate.objects.filter(book=self.object, user=user) #Ocena produktu prez użytkownika
             if your_rate:
                 context['your_rate'] = your_rate.get()
-            else:
-                context['your_rate'] = None
         else:
             context['your_rate'] = None
         context['num_of_votes'] = self.object.num_of_rates
@@ -262,7 +255,7 @@ class BookDetailPageView(DetailView):
 
         return queryset[0]
 
-class New_Books(ListView):
+class New_Books(Custom_ListView):
     '''
     Strona, która wyświetla najnowsze książi.
     '''
@@ -280,36 +273,6 @@ class New_Books(ListView):
                                   SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
                                   FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
                   '''
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['signup_form'] = signup_form
-        context['login_form'] = login_form
-        context['num_of_items_form'] = number_of_items
-        context['music_categories'] = music_categories
-        context['movies_categories'] = movies_categories
-        context['book_categories'] =   Product.objects.get(name='books').categories.all()
-        context['others_categories'] = others_categories
-        context['games_categories'] = games_categories
-
-        user = self.request.user
-        if user.is_authenticated:
-            context['user_additional_data'] = user.additionaldata
-            c = 0
-            for i in context['user_additional_data'].order_list:
-                c+= i['amount']
-            context['num_of_items_in_shca'] = c
-        else:
-            if not 'order_list' in self.request.session:
-                self.request.session['order_list'] = []
-                context['num_of_items_in_shca'] = 0
-            else:
-                c = 0
-                for i in self.request.session['order_list']:
-                    c+= i['amount']
-                context['num_of_items_in_shca'] = c
-
-        return context
 
     def get_args_to_query(self):
         return (self.limit,)

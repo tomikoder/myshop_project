@@ -1,0 +1,5 @@
+{% autoescape off %}
+Hello from Myshop!
+Otrzymałeś email ponieważ zarejestrowałeś się na naszej stronie.
+Kliknij link by aktywoać konto i dokonywać zakupów {{ activate_url }}
+{% endautoescape %}

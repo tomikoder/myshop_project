@@ -148,6 +148,11 @@ $(function() {
 	    });
 	});
 
+	function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
+
 	$('#signupform').on('submit', function(event) {
 	    event.preventDefault();
 	    ai = $('#signupform').serialize();
@@ -192,6 +197,9 @@ $(function() {
 	                        $('#successsignupmodal #yourmail').html($('#signupmodal #id_email').val())
 	                        $('#successsignupmodal').modal('show')
 	                        $('#cover-spin').hide()
+	                            sleep(3000).then(() => {
+	                            window.location.reload();
+                            });
 	                    }
 	    });
 	});
