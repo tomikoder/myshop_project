@@ -164,7 +164,7 @@
             <p class="text-muted pl-3" style="font-family: sans-serif Helvetica; font-size: 14px; width: 90%;">
                 <span class="other_book_author" style="font-size: 13px;">{% display_authors b.authors %},</span><br>
                 <a class="other_book_link other_book_title" href="/{{ b.product_type }}/{{ b.link }}">{{ b.title }}</a><br>
-                {% if not b.title|length > 24 %}
+                {% if not b.is_long %}
                 <br class="add_new_line">
                 {% else %}
                 <br class="add_new_line" style="display: none;">

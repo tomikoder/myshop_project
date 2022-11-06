@@ -17,7 +17,6 @@ from users.models import AdditionalData
 from pages.views import music_categories, movies_categories, others_categories, games_categories
 from .models import Orders
 
-
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomSignupView(SignupView):
     http_method_names = ['post', 'put']
@@ -25,7 +24,6 @@ class CustomSignupView(SignupView):
     form_class = signup_form
     success_url = reverse_lazy('home')
     success_message = 'Gratulacje: Założyłeś konto na MyShop.com.'
-
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomLoginView(LoginView):
@@ -69,7 +67,6 @@ class CustomMailConform(ConfirmEmailView, Custom_DetailView):
         context = super().get_context_data(**kwargs)
         context = Custom_DetailView.get_context_data(self, **kwargs)
         return context
-
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class YouShoppingCart(DetailView):

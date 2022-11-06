@@ -68,6 +68,19 @@ class Custom_TemplateView(TemplateView):
                 context['num_of_items_in_shca'] = c
         return context
 
+class Custom_DetailView(DetailView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['signup_form'] = signup_form
+        context['login_form'] = login_form
+        context['num_of_items_form'] = number_of_items
+        context['book_categories'] = Product.objects.get(name='books').categories.all()
+        context['others_categories'] = others_categories
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['games_categories'] = games_categories
+        return context
+
 class Custom_ListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -80,7 +93,6 @@ class Custom_ListView(ListView):
         context['others_categories'] = others_categories
         context['games_categories'] = games_categories
 
-        context = super().get_context_data(**kwargs)
         user = self.request.user
         if user.is_authenticated:
             context['user_additional_data'] = user.additionaldata
@@ -147,7 +159,7 @@ class RegulaminPageView(Custom_TemplateView):
     template_name = 'regulamin.html'
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
-class BookDetailPageView(DetailView):
+class BookDetailPageView(Custom_DetailView):
     template_name = 'detail.html'
     model = Book
     context_object_name = 'product'
@@ -163,8 +175,9 @@ class BookDetailPageView(DetailView):
             context['your_rate'] = None
         context['num_of_votes'] = self.object.num_of_rates
         #Sprowadzam wszystkie recenzje
-        context['book_reviews'] = list(Book_Review.objects.raw('''SELECT br.*, bra.rate, ROW_NUMBER() OVER() - 1 AS index 
+        context['book_reviews'] = list(Book_Review.objects.raw('''SELECT br.*, bra.rate, ROW_NUMBER() OVER() - 1 AS index, u.first_name, u.last_name 
                                                                   FROM pages_book_review AS br INNER JOIN pages_book_rate AS bra ON br.id = bra.rev_id
+                                                                                               INNER JOIN users_customuser AS u ON br.user_id = u.id  
                                                                   WHERE br.book_id = %s
                                                                   ORDER BY br.date DESC
                                                                ''', [self.object.id]))
@@ -183,7 +196,8 @@ class BookDetailPageView(DetailView):
                                              WHERE b.id != %s AND ba.author_id IN %s 
                                              GROUP BY b.id
                                              LIMIT 15) 
-                                             SELECT b2.id, b2.title, b2.authors, CAST(b2.price AS VARCHAR), CAST(b2.promotional_price AS VARCHAR), p.name AS product_type, ROW_NUMBER() OVER() -1 AS index, CAST(b2.link AS CHAR(36)), b2.menu_img, b2.rate 
+                                             SELECT b2.id, b2.title, b2.authors, CAST(b2.price AS VARCHAR), CAST(b2.promotional_price AS VARCHAR), (LENGTH(b2.title) > 24) AS is_long,
+                                             p.name AS product_type, ROW_NUMBER() OVER() -1 AS index, CAST(b2.link AS CHAR(36)), b2.menu_img, b2.rate 
                                              FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                             
                            ''' % (self.object.id, sub_set)))
             other_books = dictfetchall(cursor)
@@ -199,7 +213,8 @@ class BookDetailPageView(DetailView):
                                                  AND ba.author_id NOT IN %s
                                                  GROUP BY b.id
                                                  LIMIT %s)
-                                                 SELECT b2.id, b2.title, b2.authors, CAST(b2.price AS VARCHAR), CAST(b2.promotional_price AS VARCHAR), p.name AS product_type, ROW_NUMBER() OVER() + %s AS index, CAST(b2.link AS CHAR(36)), b2.menu_img, b2.rate 
+                                                 SELECT b2.id, b2.title, b2.authors, CAST(b2.price AS VARCHAR), CAST(b2.promotional_price AS VARCHAR), (LENGTH(b2.title) > 24) AS is_long,
+                                                  p.name AS product_type, ROW_NUMBER() OVER() + %s AS index, CAST(b2.link AS CHAR(36)), b2.menu_img, b2.rate 
                                                  FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                               
                                ''' % (self.object.pk, sub_set, (15 - cursor.rowcount), (rows_num - 1))))
                 other_books += dictfetchall(cursor)
@@ -288,6 +303,7 @@ class New_Books(Custom_ListView):
                     queryset.append(None)
                     c -= 1
         return queryset
+
 
 class Prom_Books(New_Books):
     template_name = 'prom.html'

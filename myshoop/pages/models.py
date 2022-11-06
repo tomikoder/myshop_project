@@ -237,28 +237,28 @@ class Book_Review(models.Model):
         Output dla niezalogowanego użytkownika.
         :return: str
         '''
-        return self.html1 % (self.number, self.date.date(), self.user.first_name, self.user.last_name, self.subject, self.text, self.num_of_likes(), self.number)
+        return self.html1 % (self.number, self.date.date(), self.first_name, self.last_name, self.subject, self.text, self.num_of_likes(), self.number)
 
     def get_html2(self):
         '''
         Recenzja której nie polubiłeś.
         :return: str
         '''
-        return self.html2 % (self.number, self.date.date(), self.user.first_name, self.user.last_name, self.subject, self.text, self.index, self.num_of_likes(), self.number)
+        return self.html2 % (self.number, self.date.date(), self.first_name, self.last_name, self.subject, self.text, self.index, self.num_of_likes(), self.number)
 
     def get_html3(self):
         '''
         Recenzja którą polubiłeś.
         :return: str
         '''
-        return self.html3 % (self.number, self.date.date(), self.user.first_name, self.user.last_name, self.subject, self.text, self.index, self.num_of_likes(), self.number)
+        return self.html3 % (self.number, self.date.date(), self.first_name, self.last_name, self.subject, self.text, self.index, self.num_of_likes(), self.number)
 
     def get_html4(self):
         '''
         Twoja recenzja.
         :return: str
         '''
-        return self.html4 % (self.number, self.date.date(), self.user.first_name, self.user.last_name, self.subject, self.text, self.index, len(self.likes), self.number)
+        return self.html4 % (self.number, self.date.date(), self.first_name, self.last_name, self.subject, self.text, self.index, len(self.likes), self.number)
 
 class Book_Rate(models.Model):
     class Meta:

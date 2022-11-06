@@ -421,7 +421,7 @@ $(function() {
             elem_two = other_books.slice(curr_index, curr_index + 5);
             elem.children('.other_book').each(function() {
                 elem_three = $(this);
-                if (Number(elem_two[c]['is_long_name'])) {
+                if (elem_two[c]['is_long']) {
                     elem_three.find(".add_new_line").hide();
                 } else {
                     elem_three.find(".add_new_line").show();
