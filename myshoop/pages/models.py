@@ -8,6 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 class MyShopConf(models.Model):
     rev_num = models.IntegerField(default=0, null=False)
@@ -55,8 +57,13 @@ class Publisher(models.Model):
     def __str__(self):
         return self.name
 
+class AdminBook(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().order_by('title')
+
 class Book(models.Model):
     default_product_id = 1
+    ready_to_add_data = True
     link = models.UUIDField(
         unique=True,
         primary_key=False,
@@ -97,10 +104,13 @@ class Book(models.Model):
     rate = models.IntegerField(default=0)
     num_of_likes = models.IntegerField(default=0)
     num_of_rates = models.IntegerField(default=0)
+    search_data  = models.TextField(default="")
+    compresed_search_data = SearchVectorField(null=True)
 
     class Meta:
         indexes = [
             models.Index(fields=['title']),
+            GinIndex(fields=['compresed_search_data'],)
         ]
 
     def serialize(self):
@@ -201,7 +211,6 @@ class Book(models.Model):
         else:
             diference = self.price - self.promotional_price
             return round(diference / (self.price / 100))
-
 
     def __str__(self):
         return self.title

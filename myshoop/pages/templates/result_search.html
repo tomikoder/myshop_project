@@ -9,6 +9,10 @@
 {% block content %}
     {% return_data_three user user_additional_data books categories as data %}
     {{ data|json_script:"data_id" }}
+    {% if not page_obj %}
+        <br>
+        <h1>Brak wyników</h1>
+    {% else %}
     <div class="d-flex flex-row" style="">
         {% for p in page_obj|slice:":4" %}
         {% if p %}
@@ -224,7 +228,7 @@
         {% endif %}
     {% endif %}
     </ul>
-
+{% endif %}
 {% include 'pagesmodals.html' %}
 {% endblock content %}
 

@@ -13,6 +13,24 @@ from django.core.exceptions import ObjectDoesNotExist
 from pages.signals import content_file_name, size_lg, size_md, size_sm
 from PIL import Image
 from django.conf import settings
+from django.contrib.postgres.search import SearchVector
+
+def update_field_book(instance):
+    b = instance
+    txt = ""
+    txt += b.publisher.name + " "
+    authors = b.author.all()
+    for a in authors:
+        txt += a.name + " "
+    categorys = b.category.all()
+    for c in categorys:
+        txt += c.name + " "
+    txt += "książki " + "książka"
+    b.search_data = txt
+    b.save()
+    b.compresed_search_data = SearchVector('search_data', weight='C', config='simple',) + SearchVector('title', weight='A', config='simple',)
+    b.save()
+
 
 class Command(BaseCommand):
     '''Użyj np python manage.py fill_database 100 --sy 2020 --ey 2022, by pobrać przykładowe
@@ -144,6 +162,7 @@ class Command(BaseCommand):
                 new_file_name = os.path.split(new_book.cover_img.name)[-1][:-6] + ('sm.%s' % ext)
                 file.save(os.path.join(settings.MEDIA_ROOT, 'covers', 'sm', new_file_name))
                 new_book.menu_img = '/media/covers/sm/' + new_file_name
+                new_book.ready_to_add_data = False
                 new_book.save()
 
                 for b_a in b_authors:
@@ -168,6 +187,7 @@ class Command(BaseCommand):
                         product.categories.add(new_category)
                         categories.append(new_category)
                         new_book.category.add(new_category)
+                update_field_book(new_book)
                 counter += 1
                 if counter == number:
                     self.update_register(year, month, page, number, counter)

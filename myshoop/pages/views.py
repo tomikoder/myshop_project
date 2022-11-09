@@ -351,6 +351,23 @@ class Search_Book(New_Books):
         context['query'] = self.request.GET['query']
         return context
 
+class Search_Book_Two(Search_Book):
+    sql_script = '''WITH book AS (SELECT b.id, b.title, b.rate, ARRAY_AGG (a.name) AS authors, CAST(b.price AS VARCHAR), CAST(b.promotional_price AS VARCHAR), b.product_id, CAST(b.link AS CHAR(36)), b.menu_img  
+                                  FROM pages_book AS b INNER JOIN pages_book_author AS ba ON b.id = ba.book_id
+                                                       INNER JOIN pages_author AS a ON a.id = ba.author_id
+                                  WHERE b.compresed_search_data @@ to_tsquery(%s)
+                                  GROUP BY b.id
+                                  LIMIT %s)
+                                  SELECT b2.id, b2.title, b2.rate, b2.authors, b2.price, b2.promotional_price, p.name AS product_type, b2.link, b2.menu_img, ROW_NUMBER() OVER() - 1 AS index
+                                  FROM book AS b2 INNER JOIN pages_product AS p ON b2.product_id = p.id;                                                              
+                 '''
+
+    def get_args_to_query(self):
+        query = self.request.GET['query']
+        query = query.split()
+        query = ' & '.join(query)
+        return (query, self.limit)
+
 
 
 

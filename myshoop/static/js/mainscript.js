@@ -1,5 +1,5 @@
 $(function() {
-    var mycookie, ai, elem, elem_two, elem_three, datatosend;
+    var mycookie, ai, elem, elem_two, elem_three, datatosend, open_modal;
 
 
     var your_data = JSON.parse($("#data_id").text());
@@ -9,6 +9,12 @@ $(function() {
     } else {
         is_login = 0;
     }
+
+    $("#search").click(function(event) {
+        if ($('#loginmodal').hasClass('in') || $('#signupmodal').hasClass('in')) {
+            event.preventDefault();
+        }
+    });
 
     var curr_menu_li = null
 

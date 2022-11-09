@@ -214,7 +214,11 @@
         <li class="active page-item"><a class="page-link" href="?page={{ i }}&cat={{ categories_url }}">{{ i }}</a></li>
         {% endif %}
         {% endfor %}
-        <li class="page-item"><a class="page-link" href="">Następna</a></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&cat={{ categories_url }}">Następna</a></li>
+        {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.number }}&cat={{ categories_url }}">Następna</a></li>
+        {% endif %}
     </ul>
 {% include 'pagesmodals.html' %}
 {% endblock content %}
