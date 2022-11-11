@@ -1,12 +1,9 @@
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-from django.shortcuts import reverse
 import uuid
 import decimal
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import admin
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex

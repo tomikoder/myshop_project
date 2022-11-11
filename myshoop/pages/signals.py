@@ -1,16 +1,14 @@
-from django.db.models.signals import post_save, pre_save, post_delete, post_migrate, m2m_changed
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.conf import settings
 from PIL import Image
 import os
-from django.core.exceptions import ObjectDoesNotExist
 from .custom_signals import rate_is_updated, book_is_liked, book_is_unliked, book_review_is_created, book_review_is_saved, book_is_created
 from .views import vote_on_book
 from .models import Book, Book_Review, MyShopConf, Product
 from django.db.models import Avg, F
 from django.conf import settings
-from django.apps import apps
 from django.contrib.postgres.search import SearchVector
 from .admin import BooksWithReviews
 

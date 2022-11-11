@@ -1,10 +1,8 @@
 from allauth.account.forms import SignupForm, SetPasswordField, UserForm, LoginForm
 from django import forms
-from django.db import transaction
 from allauth.account import app_settings
 from allauth.utils import set_form_field_order
 from .custom_validators import validate_sign, validate_length, validate_number
-from django.contrib.auth import get_user_model
 from .models import Book_Rate
 
 class PasswordField(forms.CharField):

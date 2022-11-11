@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-import uuid
+from django.contrib import admin
+from django.utils.timezone import now
 
 class CustomUser(AbstractUser):
     city = models.CharField(max_length=20, blank=True, default='')
@@ -33,7 +34,7 @@ class AdditionalData(models.Model):
 
 class Orders(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
-    number = models.IntegerField()
+    number = models.IntegerField(editable=False)
     payment_method = models.IntegerField(null=False, default='BD', choices=[
                                                             (1, 'Karta kredytowa'),
                                                             (2, 'Płatność gotówką'),
@@ -42,12 +43,19 @@ class Orders(models.Model):
                                                             (1, 'Dostawa kurierska'),
                                                             (2, 'Punkt odbioru'),
                                                          ])
-    order_list = models.JSONField(default=list, null=False)
+    order_list = models.TextField(default="")
+    date = models.DateField(default=now)
     city = models.CharField(max_length=20, blank=True, default='')
     region = models.CharField(max_length=20, default='1')
     address = models.CharField(max_length=20, blank=True, default='')
     phone_number = models.IntegerField(null=True, default=None)
     postal_code_two = models.CharField(max_length=6, null=True, default=None)
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return 'Zamówienie nr %s' % self.number
+
+admin.site.register([Orders])
 
 
 

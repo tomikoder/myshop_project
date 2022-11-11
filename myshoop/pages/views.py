@@ -1,28 +1,17 @@
-from django.shortcuts import render
-from django.views.generic import TemplateView, DetailView, View, ListView
+from django.views.generic import DetailView, ListView, TemplateView
 from users.forms import CustomSignupForm as signup_form
 from users.forms import CustomLoginForm as  login_form
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from .models import Book, Product, Book_Rate, Book_Review
 from allauth.account.views import SignupView, LoginView
-from django.urls import reverse_lazy
 from .forms import CommentForm as comment_form, NumberOfItems as number_of_items
 from django.views.decorators.csrf import ensure_csrf_cookie
 import json
 from django.utils.decorators import method_decorator
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.core import serializers
 from .custom_signals import rate_is_updated, book_is_liked, book_is_unliked, book_review_is_created, book_review_is_saved
-import os
-from django.db.models import OuterRef, Subquery, F, Window, Q, CharField
-from django.db.models.functions import RowNumber, Cast
 import json
-from decimal import *
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import connection
-from django.core.exceptions import MultipleObjectsReturned
-from django.http import Http404
 from .models import Category
 
 def dictfetchall(cursor):

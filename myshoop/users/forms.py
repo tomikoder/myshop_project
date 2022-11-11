@@ -1,14 +1,10 @@
 from allauth.account.forms import SignupForm, SetPasswordField, UserForm, LoginForm
 from django import forms
-from django.db import transaction
 from allauth.account import app_settings
 from allauth.utils import set_form_field_order
 from .custom_validators import validate_sign, validate_length, validate_number
-from django.contrib.auth import get_user_model
 from .models import CustomUser, Orders
 from .custom_signals import order_instance_is_created
-from django.http import HttpResponseRedirect
-from copy import copy
 
 class PasswordField(forms.CharField):
     def __init__(self, *args, **kwargs):
@@ -155,7 +151,7 @@ class UserDataFormOrder(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.user = self.user
-        self.instance.order_list = copy(self.additionaldata.order_list)
+        self.instance.order_list = self.additionaldata
 
 class CustomLoginForm(LoginForm):
     password = PasswordField(label=("Hasło"), autocomplete="current-password")

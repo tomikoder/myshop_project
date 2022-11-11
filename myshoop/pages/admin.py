@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import Book, Book_Review
-from .custom_signals import book_is_created
 
 class BookReviewsPanel(admin.StackedInline):
     model = Book_Review
@@ -31,6 +30,8 @@ class BooksWithReviews(admin.ModelAdmin):
         for c in form.cleaned_data['category']:
             txt += c.name + " "
         txt += form.cleaned_data['publisher'].name + " " + "ksiązki " + "ksiązka"
+        if form.cleaned_data['original_title'] != 'n/d':
+            txt += ' ' + form.cleaned_data['original_title']
         obj.search_data = txt
         obj.save()
     ordering = ('title',)

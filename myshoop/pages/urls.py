@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from .views import (HomePageView, RegulaminPageView, BookDetailPageView, vote_on_book, post_book_review, add_like_to_book_review,
                     edit_book_review, add_like_to_book, remove_like_from_book, remove_book_review, add_product_to_shopping_cart,
-                    New_Books, Best_Books, Prom_Books, Search_Book, Specific_Book_Categories, Specific_Book_Category, Search_Book_Two
+                    New_Books, Best_Books, Prom_Books, Specific_Book_Categories, Specific_Book_Category, Search_Book_Two
                     )
 
 urlpatterns = [

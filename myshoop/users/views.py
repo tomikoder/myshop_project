@@ -2,8 +2,6 @@ from django.urls import reverse_lazy
 from allauth.account.views import SignupView, LoginView, ConfirmEmailView
 from .forms import CustomSignupForm as signup_form, CustomLoginForm as login_form, DeliveryAddress, UserDataForm, UserDataFormOrder
 from allauth.account.adapter import get_adapter
-from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect, Http404
-from django.shortcuts import render
 from django.views.generic import DetailView, UpdateView, CreateView
 from .models import AdditionalData
 from django.http import JsonResponse
@@ -16,6 +14,7 @@ from pages.models import Product
 from users.models import AdditionalData
 from pages.views import music_categories, movies_categories, others_categories, games_categories
 from .models import Orders
+from django.core.mail import send_mail
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class CustomSignupView(SignupView):
@@ -62,11 +61,35 @@ class Custom_DetailView(DetailView):
         return context
 
 
-class CustomMailConform(ConfirmEmailView, Custom_DetailView):
+class CustomMailConform(ConfirmEmailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context = Custom_DetailView.get_context_data(self, **kwargs)
+        context['signup_form'] = signup_form
+        context['login_form'] = login_form
+        context['music_categories'] = music_categories
+        context['movies_categories'] = movies_categories
+        context['book_categories'] =   Product.objects.get(name='books').categories.all()
+        context['others_categories'] = others_categories
+        context['games_categories'] = games_categories
+        user = self.request.user
+        if user.is_authenticated:
+            context['user_additional_data'] = user.additionaldata
+            c = 0
+            for i in context['user_additional_data'].order_list:
+                c+= i['amount']
+            context['num_of_items_in_shca'] = c
+        else:
+            if not 'order_list' in self.request.session:  #Używam ciasteczek by przetrrzymywać dane o koszyku.
+                self.request.session['order_list'] = []
+                context['num_of_items_in_shca'] = 0
+            else:
+                c = 0
+                for i in self.request.session['order_list']:
+                    c+= i['amount']
+                context['num_of_items_in_shca'] = c
         return context
+
+confmail = CustomMailConform.as_view()
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class YouShoppingCart(DetailView):
@@ -134,7 +157,19 @@ class Finalize_Order(CreateView):
         if form_class is None:
             form_class = self.get_form_class()
             form_class.user = self.request.user
-            self.obj = form_class.additionaldata = self.request.user.additionaldata
+            products = self.request.user.additionaldata.order_list
+            order_txt = ""
+            total = float("0.00")
+            product_description = "Id: %s Tytuł: %s Autor: %s Ilość: %s Do zapłaty: %s"
+            for p in products:
+                total += float(p['total'])
+                order_txt += (product_description % (p['id'], p['title'], " ".join(p['authors']),
+                                                    p['amount'], p['total'])) + "\n"
+                order_txt += "\n"
+            order_txt += "Do zapłaty w sumie %s zł" % total
+
+            self.obj = self.request.user.additionaldata
+            form_class.additionaldata = order_txt
         return form_class(**self.get_form_kwargs())
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')

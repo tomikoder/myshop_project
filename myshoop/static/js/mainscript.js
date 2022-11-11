@@ -203,9 +203,6 @@ $(function() {
 	                        $('#successsignupmodal #yourmail').html($('#signupmodal #id_email').val())
 	                        $('#successsignupmodal').modal('show')
 	                        $('#cover-spin').hide()
-	                            sleep(3000).then(() => {
-	                            window.location.reload();
-                            });
 	                    }
 	    });
 	});

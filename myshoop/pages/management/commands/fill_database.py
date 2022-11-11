@@ -26,6 +26,8 @@ def update_field_book(instance):
     for c in categorys:
         txt += c.name + " "
     txt += "książki " + "książka"
+    if b.original_title != 'n/d':
+        txt += " " + b.original_title
     b.search_data = txt
     b.save()
     b.compresed_search_data = SearchVector('search_data', weight='C', config='simple',) + SearchVector('title', weight='A', config='simple',)
